@@ -410,7 +410,10 @@
     </nav>
 
     <script>
-        const apiKey = "AQ.Ab8RN6L94kRL_VkiDwj8sHeRz6_yFPLRgC1jcNS6CLqolV3PVA";
+        // ⚠️ INSERISCI QUI LA TUA CHIAVE API DI GEMINI (senza spazi)
+        const apiKey = ""; 
+        
+        // Modello stabile per evitare errori di autorizzazione (403)
         const GEMINI_MODEL = "gemini-1.5-flash";
 
         let recipesDB = [];
@@ -420,7 +423,6 @@
         let currentServingsMultiplier = 1;
         let wakeLock = null;
 
-        // Registrazione Service Worker (necessario per l'installazione PWA)
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js')
@@ -429,7 +431,6 @@
             });
         }
 
-        // ========== DATI E LOGICA APP ==========
         const SAMPLE_RECIPES = [
             {
                 id: "sample-carbonara-1", title: "Spaghetti alla Carbonara Tradizionale", category: "Primi Piatti",
@@ -559,7 +560,7 @@
         }
 
         async function fetchWithRetry(url, options, maxRetries = 4) {
-            let delay = 1000;
+            let delay = 2000; // Aumentato per gestire meglio i limiti di velocità (429)
             for (let attempt = 0; attempt <= maxRetries; attempt++) {
                 try {
                     const response = await fetch(url, options);
@@ -577,6 +578,7 @@
             const urlInput = document.getElementById("recipe-url").value.trim();
             const rawTextInput = document.getElementById("recipe-raw-text").value.trim();
             if (!urlInput && !rawTextInput) { showToast("Incolla un link o il testo di una ricetta!", "error"); return; }
+            
             const btn = document.getElementById("extract-btn");
             const loadingBox = document.getElementById("extract-loading");
             const previewBox = document.getElementById("extracted-preview-card");
@@ -585,7 +587,6 @@
 
             const systemPrompt = `Sei uno chef professionista ed esperto di organizzazione gastronomica per l'app "Cattura Ricette".
 Il tuo compito è estrarre, tradurre in italiano (se in un'altra lingua) e strutturare in modo impeccabile una ricetta partendo da un URL (sito web, blog, YouTube, TikTok, Instagram, Facebook) e/o da un testo grezzo/didascalia fornito dall'utente.
-Usa Google Search se viene fornito un URL per trovare i dettagli esatti della ricetta associata a quel link o titolo.
 REGOLE RIGIDE PER I DATI:
 1. Estrai quantità numeriche precise e unità di misura standardizzate (g, ml, pz, cucchiai, q.b.). Se "quanto basta", quantity: 0 e unit: "q.b.".
 2. Dividi la preparazione in passaggi chiari, sequenziali e pratici.
@@ -598,7 +599,6 @@ REGOLE RIGIDE PER I DATI:
 
             const payload = {
                 contents: [{ parts: [{ text: userPrompt }] }],
-                tools: [{ "google_search": {} }],
                 systemInstruction: { parts: [{ text: systemPrompt }] },
                 generationConfig: {
                     responseMimeType: "application/json",
@@ -616,6 +616,11 @@ REGOLE RIGIDE PER I DATI:
                     }
                 }
             };
+
+            // Attiva la ricerca web SOLO se c'è un link e NON c'è testo
+            if (urlInput && !rawTextInput) {
+                payload.tools = [{ "google_search": {} }];
+            }
 
             try {
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
@@ -639,11 +644,23 @@ REGOLE RIGIDE PER I DATI:
                 await saveRecipeToDB(newRecipe);
                 document.getElementById("recipe-url").value = "";
                 document.getElementById("recipe-raw-text").value = "";
-                showToast("Ricetta catturata e salvata in locale!", "success");
+                showToast("Ricetta catturata e salvata!", "success");
                 renderExtractedPreview(newRecipe);
             } catch (error) {
                 console.error("Errore cattura:", error);
-                showToast("Link protetto o non leggibile: incolla anche il testo/didascalia.", "error");
+                // GESTIONE ERRORI SPECIFICA
+                let userMsg = "Errore sconosciuto durante la cattura.";
+                if (error.message.includes("429")) {
+                    userMsg = "Errore 429: Troppe richieste. Aspetta 1 minuto o crea una nuova chiave.";
+                } else if (error.message.includes("403")) {
+                    userMsg = "Errore 403: Chiave API non valida o progetto bloccato.";
+                } else if (error.message.includes("400")) {
+                    userMsg = "Errore 400: Il link è protetto o il testo non è valido. Prova a incollare il testo.";
+                } else {
+                    userMsg = "Errore: " + error.message + ". Se il link è protetto, incolla il testo.";
+                }
+                
+                showToast(userMsg, "error");
                 const container = document.getElementById("raw-text-container");
                 if (container.classList.contains("hidden")) toggleRawTextSection();
             } finally {
