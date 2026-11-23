@@ -1,7 +1,7 @@
 // Service Worker per Cattura Ricette PWA
 // Gestisce l'installazione + cache offline dei file dell'app
 
-const CACHE_NAME = 'cattura-ricette-v2';
+const CACHE_NAME = 'cattura-ricette-v3';
 const CORE_FILES = [
   './',
   './index.html',
