@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#C84B2A">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Cattura Ricette">
+    <title>Cattura Ricette — Il tuo Ricettario AI Locale</title>
+
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;0,9..144,800;0,9..144,900;1,9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        serif: ['Fraunces', 'serif'],
+                        hand: ['Caveat', 'cursive'],
+                    },
+                    colors: {
+                        cream: { 50: '#FDFBF7', 100: '#F9F3E8', 200: '#EFE4CE', 300: '#E4D4B5' },
+                        terracotta: { 50: '#FDF3F0', 100: '#FBE1D8', 200: '#F5BFA9', 400: '#E87552', 500: '#DC5B38', 600: '#C84B2A', 700: '#A53A1E', 800: '#822C16', 900: '#6B2412' },
+                        saffron: { 50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 400: '#FBBF24', 500: '#F59E0B', 600: '#D97706', 700: '#B45309' },
+                        forest: { 50: '#F2F7F3', 100: '#DCEBE0', 500: '#4A7C59', 600: '#3B6347', 700: '#2F5038' }
+                    },
+                    boxShadow: {
+                        'soft': '0 2px 8px rgba(41,29,24,0.04), 0 1px 2px rgba(41,29,24,0.03)',
+                        'elevated': '0 12px 32px -8px rgba(41,29,24,0.10), 0 4px 12px -2px rgba(41,29,24,0.05)',
+                        'warm': '0 12px 28px -6px rgba(200,75,42,0.28), 0 6px 14px -4px rgba(200,75,42,0.18)',
+                        'inner-glow': 'inset 0 1px 0 rgba(255,255,255,0.6)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            -webkit-tap-highlight-color: transparent;
+            overscroll-behavior-y: none;
+            background-color: #FDFBF7;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(232,117,82,0.04) 0%, transparent 45%),
+                radial-gradient(circle at 85% 80%, rgba(251,191,36,0.05) 0%, transparent 40%),
+                radial-gradient(#E8DEC8 0.7px, transparent 0.7px);
+            background-size: 100% 100%, 100% 100%, 22px 22px;
+            background-attachment: fixed;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .step-checked { text-decoration: line-through; opacity: 0.45; }
+
+        @keyframes float-net {
+            0%, 100% { transform: rotate(0deg) translateY(0px); }
+            50% { transform: rotate(-4deg) translateY(-2.5px); }
+        }
+        .animate-net-hover:hover .net-svg-group,
+        .animate-net-float { animation: float-net 3.4s ease-in-out infinite; transform-origin: center; }
+
+        @keyframes pulse-soft { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+        .animate-pulse-soft { animation: pulse-soft 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+
+        @keyframes fade-up { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-up { animation: fade-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
+        .stagger-1 { animation-delay: 0.05s; }
+        .stagger-2 { animation-delay: 0.1s; }
+        .stagger-3 { animation-delay: 0.15s; }
+
+        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+        .btn-shine { position: relative; overflow: hidden; }
+        .btn-shine::after {
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.18) 50%, transparent 70%);
+            background-size: 200% 100%;
+            animation: shimmer 3.5s linear infinite;
+            pointer-events: none;
+        }
+
+        .title-gradient {
+            background: linear-gradient(135deg, #291D18 0%, #C84B2A 55%, #D97706 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .card-gradient-border { position: relative; background: #ffffff; }
+        .card-gradient-border::before {
+            content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1px;
+            background: linear-gradient(145deg, rgba(200,75,42,0.18), rgba(251,191,36,0.10) 50%, rgba(200,75,42,0.06));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor; mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        .nav-btn { position: relative; z-index: 1; }
+        .nav-active-pill {
+            position: absolute; top: 6px; bottom: 6px; border-radius: 16px;
+            background: #FDF3F0;
+            box-shadow: inset 0 0 0 1px rgba(200,75,42,0.14), 0 2px 6px rgba(200,75,42,0.08);
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1); z-index: 0;
+        }
+
+        input[type="checkbox"] { accent-color: #C84B2A; transition: transform 0.15s ease; }
+        input[type="checkbox"]:active { transform: scale(0.88); }
+        ::selection { background: #FBE1D8; color: #6B2412; }
+        #recipe-detail-modal::-webkit-scrollbar { width: 6px; }
+        #recipe-detail-modal::-webkit-scrollbar-thumb { background: rgba(200,75,42,0.25); border-radius: 999px; }
+    </style>
+</head>
+<body class="text-stone-800 font-sans antialiased selection:bg-terracotta-100 selection:text-terracotta-900 pb-28">
+
+    <header class="sticky top-0 z-30 bg-cream-50/90 backdrop-blur-xl border-b border-cream-200/70 shadow-[0_1px_0_rgba(255,255,255,0.7),0_4px_24px_rgba(41,29,24,0.05)]">
+        <div class="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between gap-2">
+            <div class="animate-net-hover flex items-center gap-3 text-left group">
+                <div class="relative w-12 h-12 rounded-[18px] bg-gradient-to-br from-terracotta-400 via-terracotta-600 to-amber-600 p-[1.5px] shadow-warm ring-1 ring-white/80 flex items-center justify-center shrink-0 overflow-hidden">
+                    <div class="w-full h-full rounded-[16px] bg-gradient-to-br from-terracotta-500 via-terracotta-600 to-amber-600 flex items-center justify-center overflow-hidden">
+                    <svg id="brand-logo-svg" viewBox="0 0 120 120" class="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Logo Cattura Ricette">
+                        <defs>
+                            <linearGradient id="netBagGrad" x1="36" y1="22" x2="104" y2="86" gradientUnits="userSpaceOnUse">
+                                <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.48"/>
+                                <stop offset="100%" stop-color="#FEF3C7" stop-opacity="0.22"/>
+                            </linearGradient>
+                            <linearGradient id="woodHandleGrad" x1="12" y1="108" x2="46" y2="74" gradientUnits="userSpaceOnUse">
+                                <stop offset="0%" stop-color="#5C260B"/>
+                                <stop offset="50%" stop-color="#9A3412"/>
+                                <stop offset="100%" stop-color="#C2410C"/>
+                            </linearGradient>
+                            <clipPath id="netBagClip">
+                                <path d="M40 42 C56 16, 98 16, 108 42 C116 64, 98 92, 72 86 C56 82, 42 74, 40 42 Z"/>
+                            </clipPath>
+                        </defs>
+
+                        <g class="net-svg-group">
+                            <path d="M22 30 L24.5 36.5 L31 39 L24.5 41.5 L22 48 L19.5 41.5 L13 39 L19.5 36.5 Z" fill="#FDE047"/>
+                            <path d="M98 84 L99.8 88.5 L104.3 90.3 L99.8 92.1 L98 96.6 L96.2 92.1 L91.7 90.3 L96.2 88.5 Z" fill="#FDE047"/>
+                            <circle cx="88" cy="15" r="3" fill="#FEF08A"/>
+                            <circle cx="34" cy="18" r="2.2" fill="#FFFFFF" fill-opacity="0.9"/>
+                            <path d="M92 74 C98 71, 103 66, 106 60" stroke="#FDE68A" stroke-width="2" stroke-linecap="round" stroke-dasharray="3 4"/>
+                            <path d="M40 42 C56 16, 98 16, 108 42 C116 64, 98 92, 72 86 C56 82, 42 74, 40 42 Z" fill="url(#netBagGrad)"/>
+
+                            <g transform="translate(65, 36) rotate(-28)">
+                                <rect x="-15" y="-2.2" width="30" height="4.4" rx="2.2" fill="#92400E"/>
+                                <rect x="-10" y="-4.8" width="20" height="9.6" rx="3" fill="#F59E0B" stroke="#78350F" stroke-width="1.5"/>
+                                <line x1="-7" y1="-2.2" x2="7" y2="-2.2" stroke="#FEF3C7" stroke-width="1.2" stroke-linecap="round"/>
+                            </g>
+
+                            <g transform="translate(86, 44) rotate(32)">
+                                <rect x="-2.4" y="6" width="4.8" height="15" rx="2.4" fill="#334155"/>
+                                <rect x="-3" y="4" width="6" height="3.5" rx="1.2" fill="#CBD5E1"/>
+                                <path d="M0 5 C-8.5 -2, -8.5 -16, 0 -18 C8.5 -16, 8.5 -2, 0 5 Z" stroke="#F8FAFC" stroke-width="2" fill="none"/>
+                                <path d="M0 5 C-4.2 -2, -4.2 -15, 0 -18 C4.2 -15, 4.2 -2, 0 5 Z" stroke="#E2E8F0" stroke-width="1.5" fill="none"/>
+                            </g>
+
+                            <g transform="translate(88, 67) rotate(56)">
+                                <rect x="-2.2" y="-1" width="4.4" height="18" rx="2.2" fill="#92400E"/>
+                                <ellipse cx="0" cy="-7.5" rx="6.2" ry="8.5" fill="#D97706" stroke="#78350F" stroke-width="1.6"/>
+                                <ellipse cx="-1.5" cy="-8.5" rx="2" ry="3.5" fill="#FDE68A" fill-opacity="0.5"/>
+                            </g>
+
+                            <g transform="translate(62, 62) rotate(-42)">
+                                <rect x="-2.3" y="3" width="4.6" height="16" rx="2.3" fill="#1E293B"/>
+                                <path d="M-6.5 -11 L6.5 -11 L5.2 3 L-5.2 3 Z" rx="2" fill="#F8FAFC" stroke="#475569" stroke-width="1.6" stroke-linejoin="round"/>
+                                <line x1="-2.4" y1="-8" x2="-2.1" y2="0" stroke="#64748B" stroke-width="1.4" stroke-linecap="round"/>
+                                <line x1="0" y1="-8" x2="0" y2="0" stroke="#64748B" stroke-width="1.4" stroke-linecap="round"/>
+                                <line x1="2.4" y1="-8" x2="2.1" y2="0" stroke="#64748B" stroke-width="1.4" stroke-linecap="round"/>
+                            </g>
+
+                            <g clip-path="url(#netBagClip)" stroke="#FFFFFF" stroke-opacity="0.55" stroke-width="1.35">
+                                <line x1="35" y1="30" x2="95" y2="90"/>
+                                <line x1="48" y1="20" x2="108" y2="80"/>
+                                <line x1="63" y1="14" x2="118" y2="69"/>
+                                <line x1="79" y1="12" x2="122" y2="55"/>
+                                <line x1="30" y1="46" x2="80" y2="96"/>
+                                <line x1="95" y1="15" x2="35" y2="75"/>
+                                <line x1="108" y1="26" x2="48" y2="86"/>
+                                <line x1="116" y1="42" x2="62" y2="96"/>
+                                <line x1="80" y1="12" x2="28" y2="64"/>
+                            </g>
+
+                            <path d="M40 42 C56 16, 98 16, 108 42 C116 64, 98 92, 72 86 C56 82, 42 74, 40 42 Z" stroke="#FFFBEB" stroke-width="2.2" stroke-linejoin="round"/>
+
+                            <ellipse cx="55" cy="58" rx="12.5" ry="24.5" transform="rotate(-38 55 58)" stroke="#78350F" stroke-width="5.6"/>
+                            <ellipse cx="55" cy="58" rx="12.5" ry="24.5" transform="rotate(-38 55 58)" stroke="#FDE68A" stroke-width="3.2"/>
+
+                            <path d="M14 104 L41 75" stroke="url(#woodHandleGrad)" stroke-width="8.5" stroke-linecap="round"/>
+                            <path d="M15 101 L39 75" stroke="#FDBA74" stroke-opacity="0.45" stroke-width="2" stroke-linecap="round"/>
+                            <circle cx="14" cy="104" r="4.6" fill="#78350F" stroke="#FDE68A" stroke-width="1.3"/>
+                            <g transform="translate(41, 75) rotate(-47)">
+                                <rect x="-4.5" y="-4.5" width="9" height="9" rx="2.5" fill="#FDE047" stroke="#78350F" stroke-width="1.6"/>
+                            </g>
+                        </g>
+                    </svg>
+                    </div>
+                </div>
+
+                <div>
+                    <h1 class="font-serif font-black text-[22px] sm:text-2xl tracking-tight title-gradient leading-none">Cattura Ricette</h1>
+                    <div class="flex items-center gap-1.5 mt-1.5">
+                        <span class="inline-block w-1.5 h-1.5 rounded-full bg-terracotta-500 shadow-[0_0_0_2px_rgba(200,75,42,0.15)]"></span>
+                        <p class="text-[11px] font-semibold text-stone-500 tracking-wide">Acchiappa &amp; salva dal web e social</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-1.5">
+                <button onclick="openBackupModal()" class="p-2.5 rounded-xl bg-white hover:bg-cream-100 text-stone-700 border border-cream-200 shadow-soft transition active:scale-95 flex items-center gap-1.5 text-xs font-bold" title="Backup & Ripristino Locale">
+                    <i class="ph-bold ph-database text-base text-terracotta-600"></i>
+                    <span class="hidden sm:inline">Archivio</span>
+                </button>
+            </div>
+        </div>
+        <div class="h-[1.5px] bg-gradient-to-r from-transparent via-terracotta-300/40 to-transparent"></div>
+    </header>
+
+    <div id="toast-container" class="fixed top-20 left-4 right-4 z-50 pointer-events-none flex flex-col items-center gap-2"></div>
+
+    <main class="max-w-2xl mx-auto px-4 pt-5">
+
+        <section id="view-extract" class="space-y-5">
+            <div class="bg-white rounded-[32px] p-5 sm:p-7 shadow-elevated border border-cream-200/80 relative overflow-hidden animate-fade-up">
+                <div class="absolute -right-12 -top-12 w-44 h-44 rounded-full bg-gradient-to-br from-saffron-100/70 via-terracotta-100/40 to-transparent pointer-events-none"></div>
+                <div class="absolute -left-8 bottom-0 w-28 h-28 rounded-full bg-gradient-to-tr from-terracotta-50/60 to-transparent pointer-events-none"></div>
+
+                <div class="relative">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold bg-gradient-to-r from-terracotta-50 to-saffron-50 text-terracotta-700 border border-terracotta-200/60 mb-3 shadow-inner-glow">
+                        <i class="ph-fill ph-sparkle text-saffron-500 text-sm"></i> Cattura Istantanea Ricette By Beppe MASTROIANNI
+                    </span>
+                    <h2 class="text-2xl sm:text-[28px] font-serif font-black text-stone-900 leading-[1.15] tracking-tight mb-3">
+                        Acchiappa una ricetta da <span class="italic text-terracotta-600">qualsiasi link</span>
+                    </h2>
+                    <p class="text-sm text-stone-600 mb-6 leading-relaxed max-w-lg">
+                        Incolla l'URL di un sito web, Reel di Instagram, video TikTok, Facebook o YouTube. Catturiamo ingredienti, dosi e passaggi salvandoli nel ricettario del tuo telefono.
+                    </p>
+                </div>
+
+                <div class="space-y-2.5 relative">
+                    <label for="recipe-url" class="block text-[11px] font-bold uppercase tracking-[0.08em] text-stone-500">Link della ricetta o video social</label>
+                    <div class="relative flex items-center group">
+                        <div class="absolute left-4 text-terracotta-500 pointer-events-none transition-transform group-focus-within:scale-110">
+                            <i class="ph-bold ph-link text-lg"></i>
+                        </div>
+                        <input type="url" id="recipe-url" placeholder="https://www.instagram.com/reel/... o Facebook / sito web" class="w-full pl-11 pr-24 py-3.5 bg-cream-50/70 border border-cream-200 rounded-2xl text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-terracotta-500/40 focus:border-terracotta-400 focus:bg-white transition-all shadow-inner-glow">
+                        <button type="button" onclick="pasteFromClipboard()" class="absolute right-2 px-3 py-2 bg-white hover:bg-terracotta-50 text-stone-800 border border-cream-200 rounded-xl text-xs font-bold shadow-soft transition active:scale-95 flex items-center gap-1">
+                            <i class="ph-bold ph-clipboard-text text-sm text-terracotta-600"></i> Incolla
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-3.5 border-t border-cream-200/70">
+                    <button type="button" onclick="toggleRawTextSection()" class="w-full flex items-center justify-between text-left py-1.5 text-xs font-bold text-stone-600 hover:text-terracotta-600 transition group">
+                        <span class="flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-lg bg-terracotta-50 text-terracotta-600 flex items-center justify-center shrink-0">
+                                <i class="ph-bold ph-text-align-left text-sm"></i>
+                            </span>
+                            Post privato o didascalia lunga? Incolla anche il testo
+                        </span>
+                        <i id="raw-text-chevron" class="ph-bold ph-caret-down text-base transition-transform duration-200 group-hover:text-terracotta-500"></i>
+                    </button>
+                    
+                    <div id="raw-text-container" class="hidden mt-2.5 space-y-2 animate-fade-up">
+                        <textarea id="recipe-raw-text" rows="4" placeholder="Incolla qui la descrizione del post Facebook, video TikTok/Instagram o il testo copiato da una pagina..." class="w-full p-3.5 bg-cream-50/70 border border-cream-200 rounded-2xl text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-terracotta-500/40 focus:border-terracotta-400 focus:bg-white transition-all shadow-inner-glow resize-none"></textarea>
+                        <p class="text-[11px] text-stone-500 flex items-start gap-1.5">
+                            <i class="ph-bold ph-info text-terracotta-500 shrink-0 mt-0.5"></i>
+                            Se un link social richiede il login, copia la didascalia e incollala qui sopra per catturare tutti gli ingredienti al 100%.
+                        </p>
+                    </div>
+                </div>
+
+                <button id="extract-btn" onclick="handleExtractRecipe()" class="btn-shine mt-5 w-full py-4 px-6 bg-gradient-to-r from-terracotta-700 via-terracotta-600 to-amber-600 hover:from-terracotta-800 hover:to-amber-700 text-white font-bold rounded-2xl shadow-warm transition-all transform active:scale-[0.98] flex items-center justify-center gap-2.5 text-base ring-1 ring-white/20">
+                    <i class="ph-bold ph-chef-hat text-xl"></i>
+                    <span>Cattura e Salva nel Ricettario</span>
+                </button>
+            </div>
+
+            <div id="extract-loading" class="hidden bg-white rounded-[28px] p-6 shadow-elevated border border-terracotta-200/60 text-center space-y-4">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-terracotta-50 to-saffron-50 text-terracotta-600 mx-auto flex items-center justify-center animate-net-float border border-terracotta-100 shadow-soft">
+                    <i class="ph-fill ph-cooking-pot text-3xl"></i>
+                </div>
+                <div>
+                    <h3 class="font-serif font-extrabold text-lg text-stone-900">Stiamo catturando la ricetta...</h3>
+                    <p id="loading-status-text" class="text-xs text-stone-500 mt-1 animate-pulse-soft">Estrazione ingredienti, bilanciamento dosi e organizzazione passaggi...</p>
+                </div>
+                <div class="w-full bg-cream-100 rounded-full h-2 overflow-hidden">
+                    <div class="bg-gradient-to-r from-terracotta-500 via-saffron-500 to-terracotta-500 h-2 rounded-full w-2/3 animate-pulse"></div>
+                </div>
+            </div>
+
+            <div id="extracted-preview-card" class="hidden"></div>
+
+            <div class="bg-white/70 rounded-2xl p-4 border border-cream-200/80 shadow-soft">
+                <p class="text-[11px] font-bold uppercase tracking-[0.1em] text-stone-400 text-center mb-3">Fonti da cui puoi catturare</p>
+                <div class="flex flex-wrap justify-center gap-2 text-xs font-semibold text-stone-700">
+                    <span class="px-3 py-1.5 bg-white rounded-xl border border-cream-200 flex items-center gap-1.5 shadow-soft"><i class="ph-fill ph-globe text-sky-600"></i> Blog &amp; Siti Web</span>
+                    <span class="px-3 py-1.5 bg-white rounded-xl border border-cream-200 flex items-center gap-1.5 shadow-soft"><i class="ph-fill ph-facebook-logo text-blue-600"></i> Facebook</span>
+                    <span class="px-3 py-1.5 bg-white rounded-xl border border-cream-200 flex items-center gap-1.5 shadow-soft"><i class="ph-fill ph-instagram-logo text-pink-600"></i> Instagram</span>
+                    <span class="px-3 py-1.5 bg-white rounded-xl border border-cream-200 flex items-center gap-1.5 shadow-soft"><i class="ph-fill ph-tiktok-logo text-stone-900"></i> TikTok</span>
+                    <span class="px-3 py-1.5 bg-white rounded-xl border border-cream-200 flex items-center gap-1.5 shadow-soft"><i class="ph-fill ph-youtube-logo text-red-600"></i> YouTube</span>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-archive" class="hidden space-y-4">
+            <div class="bg-white rounded-[28px] p-4 sm:p-5 shadow-elevated border border-cream-200/80 space-y-3.5 animate-fade-up">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xl font-serif font-black text-stone-900 tracking-tight">Ricette Catturate</h2>
+                    <span id="recipe-count-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-terracotta-50 text-terracotta-700 border border-terracotta-200/60">0 ricette</span>
+                </div>
+                <div class="relative group">
+                    <i class="ph-bold ph-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400 text-lg transition-colors group-focus-within:text-terracotta-500"></i>
+                    <input type="text" id="search-recipes" oninput="renderRecipeList()" placeholder="Cerca per titolo, ingrediente o categoria..." class="w-full pl-10 pr-4 py-3 bg-cream-50/70 border border-cream-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-terracotta-500/40 focus:border-terracotta-400 focus:bg-white transition-all shadow-inner-glow">
+                </div>
+                <div id="category-filters" class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1"></div>
+            </div>
+            <div id="recipes-grid" class="grid grid-cols-1 gap-3.5"></div>
+        </section>
+
+        <section id="view-shopping" class="hidden space-y-4">
+            <div class="bg-white rounded-[28px] p-5 shadow-elevated border border-cream-200/80 animate-fade-up">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h2 class="text-xl font-serif font-black text-stone-900 tracking-tight">Lista della Spesa</h2>
+                        <p class="text-xs text-stone-500 mt-0.5 flex items-center gap-1">
+                            <i class="ph-bold ph-device-mobile text-terracotta-500"></i> Archiviata in locale sul tuo dispositivo
+                        </p>
+                    </div>
+                    <button onclick="clearCompletedShoppingItems()" class="px-3 py-2 bg-cream-100 hover:bg-red-50 text-stone-700 hover:text-red-600 rounded-xl text-xs font-bold transition flex items-center gap-1 border border-transparent hover:border-red-200">
+                        <i class="ph-bold ph-trash"></i> Pulisci presi
+                    </button>
+                </div>
+                <form onsubmit="handleAddManualShoppingItem(event)" class="flex gap-2 mb-5">
+                    <input type="text" id="manual-shopping-input" placeholder="Aggiungi ingrediente (es. 200g Parmigiano)..." class="flex-1 px-4 py-3 bg-cream-50/70 border border-cream-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-terracotta-500/40 focus:border-terracotta-400 focus:bg-white transition-all shadow-inner-glow">
+                    <button type="submit" class="px-4 py-3 bg-gradient-to-br from-terracotta-500 to-terracotta-700 hover:from-terracotta-600 hover:to-terracotta-800 text-white rounded-2xl font-bold text-sm transition active:scale-95 shadow-warm">
+                        <i class="ph-bold ph-plus text-lg"></i>
+                    </button>
+                </form>
+                <div id="shopping-list-container" class="space-y-2"></div>
+            </div>
+        </section>
+    </main>
+
+    <div id="recipe-detail-modal" class="fixed inset-0 z-40 hidden bg-stone-950/60 backdrop-blur-sm overflow-y-auto">
+        <div class="min-h-screen sm:py-6 px-0 sm:px-4 flex justify-center">
+            <div id="recipe-detail-content" class="bg-cream-50 w-full max-w-2xl sm:rounded-[32px] shadow-2xl overflow-hidden flex flex-col justify-between pb-10"></div>
+        </div>
+    </div>
+
+    <div id="backup-modal" class="fixed inset-0 z-50 hidden bg-stone-950/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-cream-50 w-full max-w-md rounded-[32px] p-6 shadow-2xl border border-cream-200 space-y-5 animate-fade-up">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-10 h-10 rounded-2xl bg-terracotta-50 text-terracotta-600 border border-terracotta-200/60 flex items-center justify-center">
+                        <i class="ph-fill ph-hard-drives text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-serif font-extrabold text-lg text-stone-900">Archivio Locale</h3>
+                        <p class="text-xs text-stone-500">Salvataggio permanente su dispositivo</p>
+                    </div>
+                </div>
+                <button onclick="closeBackupModal()" class="p-2 rounded-xl bg-cream-100 text-stone-600 hover:text-stone-900 transition">
+                    <i class="ph-bold ph-x text-lg"></i>
+                </button>
+            </div>
+            <p class="text-xs text-stone-600 leading-relaxed bg-white p-3.5 rounded-2xl border border-cream-200 shadow-soft">
+                Tutte le ricette catturate sono salvate nella memoria locale <strong>IndexedDB</strong> del tuo smartphone e restano sempre disponibili anche senza connessione Internet.
+            </p>
+            <div class="space-y-3">
+                <button onclick="exportDatabaseJSON()" class="w-full py-3.5 px-4 bg-stone-900 hover:bg-stone-800 text-white rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition active:scale-98 shadow-elevated">
+                    <i class="ph-bold ph-download-simple text-lg"></i>
+                    <span>Esporta Ricettario (Backup JSON)</span>
+                </button>
+                <label class="w-full py-3.5 px-4 bg-white hover:bg-cream-100 text-stone-800 border border-cream-200 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 cursor-pointer transition active:scale-98 shadow-soft">
+                    <i class="ph-bold ph-upload-simple text-lg text-terracotta-600"></i>
+                    <span>Importa da File JSON</span>
+                    <input type="file" accept=".json" onchange="importDatabaseJSON(event)" class="hidden">
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <nav class="fixed bottom-0 left-0 right-0 z-30 bg-cream-50/95 backdrop-blur-xl border-t border-cream-200/70 px-2 py-2 shadow-[0_-4px_24px_rgba(41,29,24,0.06)]">
+        <div class="max-w-md mx-auto relative grid grid-cols-3 gap-1">
+            <div id="nav-pill" class="nav-active-pill" style="left: 4px; width: calc(33.33% - 5.33px);"></div>
+            <button onclick="switchTab('extract')" id="nav-extract" class="nav-btn flex flex-col items-center justify-center py-2 px-1 rounded-2xl text-terracotta-600 font-bold transition-colors">
+                <i class="ph-fill ph-sparkle text-xl mb-0.5"></i>
+                <span class="text-[11px]">Cattura</span>
+            </button>
+            <button onclick="switchTab('archive')" id="nav-archive" class="nav-btn flex flex-col items-center justify-center py-2 px-1 rounded-2xl text-stone-500 hover:text-stone-800 font-semibold transition-colors">
+                <i class="ph ph-book-open-text text-xl mb-0.5"></i>
+                <span class="text-[11px]">Ricettario</span>
+            </button>
+            <button onclick="switchTab('shopping')" id="nav-shopping" class="nav-btn flex flex-col items-center justify-center py-2 px-1 rounded-2xl text-stone-500 hover:text-stone-800 font-semibold transition-colors">
+                <div class="relative">
+                    <i class="ph ph-shopping-cart text-xl mb-0.5"></i>
+                    <span id="shopping-badge" class="hidden absolute -top-1 -right-2 w-4 h-4 rounded-full bg-terracotta-600 text-white text-[10px] font-bold flex items-center justify-center shadow">0</span>
+                </div>
+                <span class="text-[11px]">Lista Spesa</span>
+            </button>
+        </div>
+    </nav>
+
+    <script>
+        const apiKey = "";
+        const GEMINI_MODEL = "gemini-3-flash-preview";
+
+        let recipesDB = [];
+        let shoppingList = [];
+        let activeCategory = "Tutte";
+        let currentOpenedRecipeId = null;
+        let currentServingsMultiplier = 1;
+        let wakeLock = null;
+
+        // Registrazione Service Worker (necessario per l'installazione PWA)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then((reg) => console.log('Service Worker registrato:', reg.scope))
+                    .catch((err) => console.warn('Service Worker non registrato:', err));
+            });
+        }
+
+        // ========== DATI E LOGICA APP ==========
+        const SAMPLE_RECIPES = [
+            {
+                id: "sample-carbonara-1", title: "Spaghetti alla Carbonara Tradizionale", category: "Primi Piatti",
+                prepTime: "10 min", cookTime: "15 min", servings: 4,
+                sourceUrl: "https://ricette.giallozafferano.it/Spaghetti-alla-Carbonara.html",
+                createdAt: new Date(Date.now() - 86400000).toISOString(),
+                ingredients: [
+                    { name: "Spaghetti trafilati al bronzo", quantity: 320, unit: "g" },
+                    { name: "Guanciale amatriciano", quantity: 150, unit: "g" },
+                    { name: "Tuorli d'uovo freschi", quantity: 6, unit: "pz" },
+                    { name: "Pecorino Romano DOP grattugiato", quantity: 50, unit: "g" },
+                    { name: "Pepe nero in grani", quantity: 5, unit: "g" }
+                ],
+                steps: [
+                    "Metti a bollire una pentola con abbondante acqua leggermente salata (ricorda che il guanciale e il pecorino sono già molto sapidi).",
+                    "Taglia il guanciale a listarelle spesse circa mezzo centimetro e rosolalo in una padella fredda a fuoco dolce senza aggiungere olio, finché diventa croccante e traslucido.",
+                    "In una ciotola capiente, sbatti i tuorli con il Pecorino Romano grattugiato e una generosa macinata di pepe nero fino a ottenere una crema densa.",
+                    "Scola gli spaghetti al dente direttamente nella padella con il guanciale (a fuoco spento) conservando un mestolo di acqua di cottura.",
+                    "Unisci la crema di tuorli e pecorino fuori dal fuoco, mescolando energicamente e aggiungendo poca acqua di cottura per creare una crema vellutata senza stracciare le uova."
+                ],
+                chefTips: "Mai mettere la padella sul fuoco diretto dopo aver aggiunto i tuorli: il calore residuo della pasta è più che sufficiente per pastorizzare l'uovo creando la cremina perfetta."
+            },
+            {
+                id: "sample-tiramisu-2", title: "Tiramisù Classico Cremoso al Mascarpone", category: "Dolci",
+                prepTime: "25 min", cookTime: "0 min", servings: 6,
+                sourceUrl: "https://www.instagram.com/catturaricette_demo",
+                createdAt: new Date().toISOString(),
+                ingredients: [
+                    { name: "Mascarpone fresco", quantity: 500, unit: "g" },
+                    { name: "Savoiardi", quantity: 250, unit: "g" },
+                    { name: "Uova freschissime (tuorli e albumi)", quantity: 4, unit: "pz" },
+                    { name: "Zucchero semolato", quantity: 100, unit: "g" },
+                    { name: "Caffè espresso freddo non zuccherato", quantity: 300, unit: "ml" },
+                    { name: "Cacao amaro in polvere", quantity: 20, unit: "g" }
+                ],
+                steps: [
+                    "Prepara il caffè con la moka e lascialo raffreddare completamente in una ciotola larga.",
+                    "Separa i tuorli dagli albumi. Monta i tuorli con metà dello zucchero fino a ottenere un composto chiaro e spumoso, poi incorpora il mascarpone poco alla volta.",
+                    "Monta gli albumi a neve ben ferma aggiungendo gradualmente lo zucchero rimanente, quindi incorporali delicatamente alla crema al mascarpone con movimenti dal basso verso l'alto.",
+                    "Inzuppa rapidamente i savoiardi nel caffè freddo (1 secondo per lato per non farli sfaldare) e crea un primo strato sul fondo di una pirofila.",
+                    "Copri con metà della crema al mascarpone, crea un secondo strato di savoiardi inzuppati e termina con la crema restante. Lascia riposare in frigo almeno 3 ore e spolvera con cacao amaro prima di servire."
+                ],
+                chefTips: "Usa uova a temperatura ambiente per montare gli albumi al massimo del volume e assicurati che il caffè sia ben freddo prima di inzuppare i savoiardi."
+            }
+        ];
+
+        const DB_NAME = "CatturaRicetteLocalDB";
+        const DB_VERSION = 1;
+        const STORE_RECIPES = "recipes";
+        const STORE_SHOPPING = "shopping";
+
+        function openIndexedDB() {
+            return new Promise((resolve, reject) => {
+                if (!window.indexedDB) { reject("IndexedDB non supportato"); return; }
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                request.onupgradeneeded = (e) => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains(STORE_RECIPES)) db.createObjectStore(STORE_RECIPES, { keyPath: "id" });
+                    if (!db.objectStoreNames.contains(STORE_SHOPPING)) db.createObjectStore(STORE_SHOPPING, { keyPath: "id" });
+                };
+                request.onsuccess = (e) => resolve(e.target.result);
+                request.onerror = (e) => reject(e.target.error);
+            });
+        }
+
+        async function loadAllData() {
+            try {
+                const db = await openIndexedDB();
+                const tx = db.transaction([STORE_RECIPES, STORE_SHOPPING], "readonly");
+                const recipeReq = tx.objectStore(STORE_RECIPES).getAll();
+                const shoppingReq = tx.objectStore(STORE_SHOPPING).getAll();
+                await new Promise((resolve) => {
+                    tx.oncomplete = () => {
+                        recipesDB = recipeReq.result || [];
+                        shoppingList = shoppingReq.result || [];
+                        resolve();
+                    };
+                });
+                const isInitialized = localStorage.getItem("catturaricette_initialized");
+                if (!isInitialized && recipesDB.length === 0) {
+                    for (const sample of SAMPLE_RECIPES) await saveRecipeToDB(sample);
+                    localStorage.setItem("catturaricette_initialized", "true");
+                }
+            } catch (err) {
+                const savedRecipes = localStorage.getItem("catturaricette_recipes");
+                const savedShopping = localStorage.getItem("catturaricette_shopping");
+                if (savedRecipes) recipesDB = JSON.parse(savedRecipes);
+                else { recipesDB = [...SAMPLE_RECIPES]; localStorage.setItem("catturaricette_recipes", JSON.stringify(recipesDB)); }
+                shoppingList = savedShopping ? JSON.parse(savedShopping) : [];
+            }
+            recipesDB.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            renderRecipeList();
+            renderShoppingList();
+        }
+
+        async function saveRecipeToDB(recipe) {
+            const idx = recipesDB.findIndex(r => r.id === recipe.id);
+            if (idx >= 0) recipesDB[idx] = recipe; else recipesDB.unshift(recipe);
+            try {
+                const db = await openIndexedDB();
+                const tx = db.transaction(STORE_RECIPES, "readwrite");
+                tx.objectStore(STORE_RECIPES).put(recipe);
+            } catch (e) { localStorage.setItem("catturaricette_recipes", JSON.stringify(recipesDB)); }
+            renderRecipeList();
+        }
+
+        async function deleteRecipeFromDB(id) {
+            recipesDB = recipesDB.filter(r => r.id !== id);
+            try {
+                const db = await openIndexedDB();
+                const tx = db.transaction(STORE_RECIPES, "readwrite");
+                tx.objectStore(STORE_RECIPES).delete(id);
+            } catch (e) { localStorage.setItem("catturaricette_recipes", JSON.stringify(recipesDB)); }
+            closeRecipeModal(); renderRecipeList();
+            showToast("Ricetta rimossa dall'archivio", "info");
+        }
+
+        async function syncShoppingDB() {
+            try {
+                const db = await openIndexedDB();
+                const tx = db.transaction(STORE_SHOPPING, "readwrite");
+                const store = tx.objectStore(STORE_SHOPPING);
+                store.clear();
+                shoppingList.forEach(item => store.put(item));
+            } catch (e) { localStorage.setItem("catturaricette_shopping", JSON.stringify(shoppingList)); }
+            renderShoppingList();
+        }
+
+        async function fetchWithRetry(url, options, maxRetries = 4) {
+            let delay = 1000;
+            for (let attempt = 0; attempt <= maxRetries; attempt++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    return await response.json();
+                } catch (err) {
+                    if (attempt === maxRetries) throw err;
+                    await new Promise(res => setTimeout(res, delay));
+                    delay *= 2;
+                }
+            }
+        }
+
+        async function handleExtractRecipe() {
+            const urlInput = document.getElementById("recipe-url").value.trim();
+            const rawTextInput = document.getElementById("recipe-raw-text").value.trim();
+            if (!urlInput && !rawTextInput) { showToast("Incolla un link o il testo di una ricetta!", "error"); return; }
+            const btn = document.getElementById("extract-btn");
+            const loadingBox = document.getElementById("extract-loading");
+            const previewBox = document.getElementById("extracted-preview-card");
+            btn.disabled = true; btn.classList.add("opacity-60", "cursor-not-allowed");
+            loadingBox.classList.remove("hidden"); previewBox.classList.add("hidden");
+
+            const systemPrompt = `Sei uno chef professionista ed esperto di organizzazione gastronomica per l'app "Cattura Ricette".
+Il tuo compito è estrarre, tradurre in italiano (se in un'altra lingua) e strutturare in modo impeccabile una ricetta partendo da un URL (sito web, blog, YouTube, TikTok, Instagram, Facebook) e/o da un testo grezzo/didascalia fornito dall'utente.
+Usa Google Search se viene fornito un URL per trovare i dettagli esatti della ricetta associata a quel link o titolo.
+REGOLE RIGIDE PER I DATI:
+1. Estrai quantità numeriche precise e unità di misura standardizzate (g, ml, pz, cucchiai, q.b.). Se "quanto basta", quantity: 0 e unit: "q.b.".
+2. Dividi la preparazione in passaggi chiari, sequenziali e pratici.
+3. Assegna una categoria tra: "Antipasti", "Primi Piatti", "Secondi Piatti", "Contorni", "Dolci", "Lievitati", "Piatti Unici".
+4. Rispondi ESCLUSIVAMENTE con un oggetto JSON valido conforme allo schema richiesto.`;
+
+            let userPrompt = "Cattura ed estrai la ricetta completa in italiano da questa fonte:\n";
+            if (urlInput) userPrompt += `URL Fonte: ${urlInput}\n`;
+            if (rawTextInput) userPrompt += `Testo / Didascalia / Trascrizione:\n${rawTextInput}\n`;
+
+            const payload = {
+                contents: [{ parts: [{ text: userPrompt }] }],
+                tools: [{ "google_search": {} }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            title: { type: "STRING" }, category: { type: "STRING" },
+                            prepTime: { type: "STRING" }, cookTime: { type: "STRING" },
+                            servings: { type: "NUMBER" },
+                            ingredients: { type: "ARRAY", items: { type: "OBJECT", properties: { name: { type: "STRING" }, quantity: { type: "NUMBER" }, unit: { type: "STRING" } }, required: ["name", "quantity", "unit"] } },
+                            steps: { type: "ARRAY", items: { type: "STRING" } },
+                            chefTips: { type: "STRING" }
+                        },
+                        required: ["title", "category", "prepTime", "cookTime", "servings", "ingredients", "steps", "chefTips"]
+                    }
+                }
+            };
+
+            try {
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
+                const result = await fetchWithRetry(apiUrl, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+                const rawJsonText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (!rawJsonText) throw new Error("Risposta vuota dal modello AI");
+                const parsedRecipe = JSON.parse(rawJsonText);
+                const newRecipe = {
+                    id: "rec-" + Date.now(),
+                    title: parsedRecipe.title || "Ricetta Catturata",
+                    category: parsedRecipe.category || "Piatti Unici",
+                    prepTime: parsedRecipe.prepTime || "15 min",
+                    cookTime: parsedRecipe.cookTime || "20 min",
+                    servings: Number(parsedRecipe.servings) || 4,
+                    sourceUrl: urlInput || "",
+                    createdAt: new Date().toISOString(),
+                    ingredients: Array.isArray(parsedRecipe.ingredients) ? parsedRecipe.ingredients : [],
+                    steps: Array.isArray(parsedRecipe.steps) ? parsedRecipe.steps : [],
+                    chefTips: parsedRecipe.chefTips || ""
+                };
+                await saveRecipeToDB(newRecipe);
+                document.getElementById("recipe-url").value = "";
+                document.getElementById("recipe-raw-text").value = "";
+                showToast("Ricetta catturata e salvata in locale!", "success");
+                renderExtractedPreview(newRecipe);
+            } catch (error) {
+                console.error("Errore cattura:", error);
+                showToast("Link protetto o non leggibile: incolla anche il testo/didascalia.", "error");
+                const container = document.getElementById("raw-text-container");
+                if (container.classList.contains("hidden")) toggleRawTextSection();
+            } finally {
+                btn.disabled = false; btn.classList.remove("opacity-60", "cursor-not-allowed");
+                loadingBox.classList.add("hidden");
+            }
+        }
+
+        function renderExtractedPreview(recipe) {
+            const previewBox = document.getElementById("extracted-preview-card");
+            previewBox.innerHTML = `
+                <div class="bg-gradient-to-br from-forest-50 to-emerald-50 border border-forest-100 rounded-[28px] p-5 space-y-4 shadow-elevated animate-fade-up">
+                    <div class="flex items-center justify-between">
+                        <span class="inline-flex items-center gap-1.5 text-xs font-bold text-forest-700 bg-white px-3 py-1 rounded-full border border-forest-100 shadow-soft">
+                            <i class="ph-fill ph-check-circle text-emerald-500"></i> Catturata nel dispositivo
+                        </span>
+                        <span class="text-xs font-bold text-stone-600 bg-white px-2.5 py-1 rounded-lg border border-cream-200">${escapeHTML(recipe.category)}</span>
+                    </div>
+                    <div>
+                        <h3 class="font-serif font-black text-xl text-stone-900 tracking-tight">${escapeHTML(recipe.title)}</h3>
+                        <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-stone-600 mt-2.5 font-medium">
+                            <span class="flex items-center gap-1"><i class="ph-bold ph-clock text-terracotta-600"></i> Prep: ${escapeHTML(recipe.prepTime)}</span>
+                            <span class="flex items-center gap-1"><i class="ph-bold ph-fire text-terracotta-600"></i> Cottura: ${escapeHTML(recipe.cookTime)}</span>
+                            <span class="flex items-center gap-1"><i class="ph-bold ph-users text-terracotta-600"></i> ${recipe.servings} porzioni</span>
+                        </div>
+                    </div>
+                    <div class="flex gap-2.5 pt-1">
+                        <button onclick="openRecipeModal('${recipe.id}')" class="flex-1 py-3 px-4 bg-stone-900 hover:bg-stone-800 text-white rounded-2xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-elevated">
+                            <i class="ph-bold ph-book-open"></i> Apri Ricetta Completa
+                        </button>
+                        <button onclick="switchTab('archive')" class="py-3 px-4 bg-white hover:bg-cream-100 text-stone-800 border border-cream-200 rounded-2xl text-xs font-bold transition shadow-soft">
+                            Vai al Ricettario
+                        </button>
+                    </div>
+                </div>`;
+            previewBox.classList.remove("hidden");
+        }
+
+        function getCategoryTheme(category) {
+            const map = {
+                "Primi Piatti":   { bg: "bg-amber-50",     text: "text-amber-700",     border: "border-amber-200/70",  icon: "ph-fill ph-bowl-food" },
+                "Secondi Piatti": { bg: "bg-terracotta-50", text: "text-terracotta-700", border: "border-terracotta-200/70", icon: "ph-fill ph-fork-knife" },
+                "Antipasti":      { bg: "bg-forest-50",    text: "text-forest-700",    border: "border-forest-100",    icon: "ph-fill ph-cheese" },
+                "Contorni":       { bg: "bg-emerald-50",   text: "text-emerald-700",   border: "border-emerald-200/70", icon: "ph-fill ph-leaf" },
+                "Dolci":          { bg: "bg-pink-50",      text: "text-pink-700",      border: "border-pink-200/70",   icon: "ph-fill ph-cake" },
+                "Lievitati":      { bg: "bg-saffron-50",   text: "text-amber-700",     border: "border-saffron-200/70", icon: "ph-fill ph-bread" },
+                "Piatti Unici":   { bg: "bg-sky-50",       text: "text-sky-700",       border: "border-sky-200/70",    icon: "ph-fill ph-bowl-steam" }
+            };
+            return map[category] || { bg: "bg-cream-100", text: "text-stone-700", border: "border-cream-200", icon: "ph-fill ph-cooking-pot" };
+        }
+
+        function renderRecipeList() {
+            const grid = document.getElementById("recipes-grid");
+            const countBadge = document.getElementById("recipe-count-badge");
+            const filtersContainer = document.getElementById("category-filters");
+            const searchQuery = document.getElementById("search-recipes").value.toLowerCase().trim();
+            const categories = ["Tutte", ...new Set(recipesDB.map(r => r.category).filter(Boolean))];
+            if (!categories.includes(activeCategory)) activeCategory = "Tutte";
+
+            filtersContainer.innerHTML = categories.map(cat => {
+                const isActive = cat === activeCategory;
+                return `<button onclick="setCategoryFilter('${escapeHTML(cat)}')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${isActive ? 'bg-terracotta-600 text-white shadow-warm' : 'bg-cream-100 text-stone-700 hover:bg-cream-200 border border-transparent hover:border-cream-300'}">${escapeHTML(cat)}</button>`;
+            }).join("");
+
+            const filtered = recipesDB.filter(recipe => {
+                const matchesCat = activeCategory === "Tutte" || recipe.category === activeCategory;
+                const inTitle = recipe.title.toLowerCase().includes(searchQuery);
+                const inIngredients = recipe.ingredients.some(i => i.name.toLowerCase().includes(searchQuery));
+                return matchesCat && (inTitle || inIngredients);
+            });
+
+            countBadge.textContent = `${filtered.length} ${filtered.length === 1 ? 'ricetta' : 'ricette'}`;
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="bg-white rounded-[28px] p-8 text-center border border-cream-200 space-y-3 shadow-soft animate-fade-up">
+                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-cream-100 to-terracotta-50 text-terracotta-500 mx-auto flex items-center justify-center border border-cream-200">
+                        <i class="ph-bold ph-bowl-steam text-2xl"></i>
+                    </div>
+                    <h3 class="font-serif font-black text-lg text-stone-900">Nessuna ricetta trovata</h3>
+                    <p class="text-xs text-stone-500 max-w-xs mx-auto">Cambia filtro di ricerca oppure cattura una nuova ricetta.</p>
+                    <button onclick="switchTab('extract')" class="mt-2 px-4 py-2.5 bg-gradient-to-r from-terracotta-500 to-terracotta-700 text-white rounded-xl text-xs font-bold shadow-warm active:scale-95 transition">+ Cattura Nuova Ricetta</button>
+                </div>`;
+                return;
+            }
+
+            grid.innerHTML = filtered.map((recipe, idx) => {
+                const sourceIcon = getSourceIcon(recipe.sourceUrl);
+                const theme = getCategoryTheme(recipe.category);
+                return `<article onclick="openRecipeModal('${recipe.id}')" class="card-gradient-border rounded-[26px] p-4 sm:p-5 shadow-soft hover:shadow-elevated hover:-translate-y-0.5 transition-all duration-200 cursor-pointer active:scale-[0.99] flex flex-col justify-between gap-3 animate-fade-up ${idx < 3 ? 'stagger-'+(idx+1) : ''}">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-start gap-3 flex-1 min-w-0">
+                            <div class="w-10 h-10 rounded-xl ${theme.bg} ${theme.text} ${theme.border} border flex items-center justify-center shrink-0 shadow-soft">
+                                <i class="${theme.icon} text-lg"></i>
+                            </div>
+                            <div class="space-y-1 min-w-0 flex-1">
+                                <span class="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold ${theme.bg} ${theme.text} ${theme.border} border uppercase tracking-wide">${escapeHTML(recipe.category)}</span>
+                                <h3 class="font-serif font-extrabold text-[17px] text-stone-900 leading-snug line-clamp-2">${escapeHTML(recipe.title)}</h3>
+                            </div>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-cream-50 border border-cream-200 flex items-center justify-center shrink-0 text-stone-500">${sourceIcon}</div>
+                    </div>
+                    <div class="flex items-center justify-between pt-2.5 border-t border-cream-100 text-xs text-stone-500 font-medium">
+                        <div class="flex items-center gap-3">
+                            <span class="flex items-center gap-1"><i class="ph-bold ph-clock text-stone-400"></i> ${escapeHTML(recipe.prepTime)}</span>
+                            <span class="flex items-center gap-1"><i class="ph-bold ph-fire text-stone-400"></i> ${escapeHTML(recipe.cookTime)}</span>
+                            <span class="flex items-center gap-1"><i class="ph-bold ph-list-bullets text-stone-400"></i> ${recipe.ingredients.length}</span>
+                        </div>
+                        <span class="font-bold text-terracotta-600 flex items-center gap-0.5">Apri <i class="ph-bold ph-caret-right"></i></span>
+                    </div>
+                </article>`;
+            }).join("");
+        }
+
+        function setCategoryFilter(cat) { activeCategory = cat; renderRecipeList(); }
+
+        function getSourceIcon(url) {
+            if (!url) return '<i class="ph-bold ph-note-pencil text-base"></i>';
+            const lower = url.toLowerCase();
+            if (lower.includes("instagram")) return '<i class="ph-fill ph-instagram-logo text-pink-600 text-base"></i>';
+            if (lower.includes("tiktok")) return '<i class="ph-fill ph-tiktok-logo text-stone-900 text-base"></i>';
+            if (lower.includes("youtube") || lower.includes("youtu.be")) return '<i class="ph-fill ph-youtube-logo text-red-600 text-base"></i>';
+            if (lower.includes("facebook") || lower.includes("fb.watch")) return '<i class="ph-fill ph-facebook-logo text-blue-600 text-base"></i>';
+            return '<i class="ph-fill ph-globe text-sky-600 text-base"></i>';
+        }
+
+        function openRecipeModal(id) {
+            const recipe = recipesDB.find(r => r.id === id);
+            if (!recipe) return;
+            currentOpenedRecipeId = id; currentServingsMultiplier = 1;
+            renderRecipeDetailContent(recipe);
+            document.getElementById("recipe-detail-modal").classList.remove("hidden");
+            document.body.classList.add("overflow-hidden");
+        }
+
+        function closeRecipeModal() {
+            document.getElementById("recipe-detail-modal").classList.add("hidden");
+            document.body.classList.remove("overflow-hidden");
+            releaseWakeLock();
+        }
+
+        function adjustServings(delta) {
+            const recipe = recipesDB.find(r => r.id === currentOpenedRecipeId);
+            if (!recipe) return;
+            const currentServings = Math.round(recipe.servings * currentServingsMultiplier);
+            const newServings = Math.max(1, currentServings + delta);
+            currentServingsMultiplier = newServings / recipe.servings;
+            renderRecipeDetailContent(recipe);
+        }
+
+        function formatQuantity(qty, multiplier) {
+            if (!qty || qty === 0) return "";
+            const scaled = qty * multiplier;
+            return Number.isInteger(scaled) ? scaled.toString() : scaled.toFixed(1).replace(/\.0$/, "");
+        }
+
+        function renderRecipeDetailContent(recipe) {
+            const container = document.getElementById("recipe-detail-content");
+            const scaledServings = Math.max(1, Math.round(recipe.servings * currentServingsMultiplier));
+            const theme = getCategoryTheme(recipe.category);
+
+            const ingredientsHtml = recipe.ingredients.map((ing) => {
+                const qtyText = formatQuantity(ing.quantity, currentServingsMultiplier);
+                const fullLabel = `${qtyText ? qtyText + ' ' : ''}${ing.unit !== 'q.b.' ? ing.unit + ' ' : ''}${ing.name}${ing.unit === 'q.b.' ? ' (q.b.)' : ''}`.trim();
+                return `<li class="flex items-center justify-between py-2.5 border-b border-cream-100 last:border-none gap-2">
+                    <label class="flex items-center gap-2.5 cursor-pointer select-none flex-1">
+                        <input type="checkbox" onchange="toggleIngredientCheck(this)" class="w-4 h-4 rounded accent-terracotta-600 cursor-pointer shrink-0">
+                        <span class="ing-text text-sm text-stone-800 transition-all">
+                            ${qtyText ? `<strong class="font-bold text-stone-900">${qtyText} ${escapeHTML(ing.unit)}</strong> ` : ''}
+                            ${escapeHTML(ing.name)}
+                            ${!qtyText && ing.unit === 'q.b.' ? '<span class="text-xs text-stone-400 font-semibold">(q.b.)</span>' : ''}
+                        </span>
+                    </label>
+                    <button onclick="addSingleIngredientToShopping('${escapeHTML(fullLabel).replace(/'/g, "\\'")}')" class="p-2 rounded-xl bg-cream-50 hover:bg-terracotta-50 text-stone-400 hover:text-terracotta-600 transition shrink-0" title="Aggiungi alla lista della spesa">
+                        <i class="ph-bold ph-shopping-cart-simple text-base"></i>
+                    </button></li>`;
+            }).join("");
+
+            const stepsHtml = recipe.steps.map((step, index) => `
+                <label class="flex items-start gap-3.5 p-4 rounded-2xl bg-white border border-cream-200 cursor-pointer hover:border-terracotta-200 hover:shadow-soft transition select-none shadow-soft">
+                    <input type="checkbox" onchange="toggleStepComplete(this)" class="mt-1 w-5 h-5 rounded-lg accent-terracotta-600 shrink-0 cursor-pointer">
+                    <div class="space-y-1">
+                        <span class="text-[10px] font-extrabold uppercase tracking-[0.1em] text-terracotta-600">Passaggio ${index + 1}</span>
+                        <p class="step-text text-sm sm:text-base text-stone-800 leading-relaxed transition-all">${escapeHTML(step)}</p>
+                    </div></label>`).join("");
+
+            container.innerHTML = `
+                <div>
+                    <div class="sticky top-0 z-10 bg-cream-50/95 backdrop-blur-xl px-5 py-3.5 border-b border-cream-200 flex items-center justify-between">
+                        <button onclick="closeRecipeModal()" class="p-2 -ml-2 rounded-xl hover:bg-cream-100 text-stone-800 flex items-center gap-1.5 text-sm font-bold transition">
+                            <i class="ph-bold ph-arrow-left text-lg"></i> Indietro
+                        </button>
+                        <div class="flex items-center gap-2">
+                            <button id="wakelock-btn" onclick="toggleWakeLock()" class="px-3 py-1.5 rounded-xl bg-white border border-cream-200 hover:bg-saffron-50 text-stone-700 text-xs font-bold flex items-center gap-1.5 transition shadow-soft" title="Mantieni schermo acceso">
+                                <i class="ph-fill ph-sun text-saffron-500"></i>
+                                <span id="wakelock-label" class="hidden sm:inline">Schermo Acceso</span>
+                            </button>
+                            <button onclick="deleteRecipeFromDB('${recipe.id}')" class="p-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 transition shadow-soft" title="Elimina ricetta">
+                                <i class="ph-bold ph-trash text-lg"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-5 sm:p-6 space-y-6">
+                        <div>
+                            <div class="flex flex-wrap items-center gap-2 mb-3">
+                                <span class="px-3 py-1 rounded-full text-xs font-bold ${theme.bg} ${theme.text} ${theme.border} border">
+                                    <i class="${theme.icon} inline mr-1"></i>${escapeHTML(recipe.category)}
+                                </span>
+                                ${recipe.sourceUrl ? `<a href="${escapeHTML(recipe.sourceUrl)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-white border border-cream-200 text-stone-600 hover:text-terracotta-600 hover:border-terracotta-200 transition shadow-soft"><i class="ph-bold ph-arrow-square-out"></i> Fonte originale</a>` : ''}
+                            </div>
+                            <h2 class="font-serif font-black text-2xl sm:text-3xl text-stone-900 leading-tight tracking-tight">${escapeHTML(recipe.title)}</h2>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2.5 bg-white p-3.5 rounded-2xl border border-cream-200 shadow-soft">
+                            <div class="text-center border-r border-cream-200">
+                                <span class="block text-[10px] uppercase tracking-[0.1em] text-stone-400 font-bold">Prep</span>
+                                <span class="text-sm font-extrabold text-stone-800">${escapeHTML(recipe.prepTime)}</span>
+                            </div>
+                            <div class="text-center border-r border-cream-200">
+                                <span class="block text-[10px] uppercase tracking-[0.1em] text-stone-400 font-bold">Cottura</span>
+                                <span class="text-sm font-extrabold text-stone-800">${escapeHTML(recipe.cookTime)}</span>
+                            </div>
+                            <div class="text-center flex flex-col items-center justify-center">
+                                <span class="block text-[10px] uppercase tracking-[0.1em] text-stone-400 font-bold mb-0.5">Porzioni</span>
+                                <div class="flex items-center gap-1.5">
+                                    <button onclick="adjustServings(-1)" class="w-6 h-6 rounded-lg bg-cream-100 hover:bg-terracotta-100 border border-cream-200 text-stone-800 font-extrabold flex items-center justify-center active:scale-90 transition">−</button>
+                                    <span class="text-sm font-extrabold text-terracotta-600 min-w-[1.2rem] text-center">${scaledServings}</span>
+                                    <button onclick="adjustServings(1)" class="w-6 h-6 rounded-lg bg-cream-100 hover:bg-terracotta-100 border border-cream-200 text-stone-800 font-extrabold flex items-center justify-center active:scale-90 transition">+</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <h3 class="font-serif font-black text-xl text-stone-900 tracking-tight">Ingredienti</h3>
+                                <button onclick="addAllIngredientsToShopping('${recipe.id}')" class="px-3 py-1.5 rounded-xl bg-terracotta-50 hover:bg-terracotta-100 text-terracotta-700 border border-terracotta-200/70 text-xs font-bold flex items-center gap-1.5 transition shadow-soft">
+                                    <i class="ph-bold ph-plus-circle"></i> Tutti in Lista Spesa
+                                </button>
+                            </div>
+                            <ul class="bg-white rounded-2xl border border-cream-200 px-4 py-1 shadow-soft">${ingredientsHtml}</ul>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <h3 class="font-serif font-black text-xl text-stone-900 tracking-tight">Procedimento</h3>
+                                <span class="text-[11px] text-stone-400 font-semibold flex items-center gap-1"><i class="ph-bold ph-hand-tap"></i> Tocca per spuntare</span>
+                            </div>
+                            <div class="space-y-2.5">${stepsHtml}</div>
+                        </div>
+                        ${recipe.chefTips ? `<div class="bg-gradient-to-br from-saffron-50 to-amber-50 border border-saffron-200/70 rounded-2xl p-4 flex gap-3 shadow-soft"><div class="w-9 h-9 rounded-xl bg-white text-saffron-600 flex items-center justify-center shrink-0 shadow-soft border border-saffron-200/50"><i class="ph-fill ph-lightbulb text-xl"></i></div><div><h4 class="text-[10px] font-extrabold uppercase tracking-[0.1em] text-amber-900 mb-1">Consiglio dello Chef</h4><p class="text-xs sm:text-sm text-amber-950 leading-relaxed">${escapeHTML(recipe.chefTips)}</p></div></div>` : ''}
+                    </div>
+                </div>`;
+        }
+
+        function toggleIngredientCheck(checkbox) { checkbox.parentElement.querySelector(".ing-text").classList.toggle("step-checked", checkbox.checked); }
+        function toggleStepComplete(checkbox) { checkbox.parentElement.querySelector(".step-text").classList.toggle("step-checked", checkbox.checked); }
+
+        async function toggleWakeLock() {
+            const label = document.getElementById("wakelock-label");
+            const btn = document.getElementById("wakelock-btn");
+            if (!("wakeLock" in navigator)) { showToast("Browser non supporta il blocco schermo automatico", "info"); return; }
+            try {
+                if (wakeLock !== null) { await releaseWakeLock(); showToast("Blocco schermo disattivato", "info"); }
+                else {
+                    wakeLock = await navigator.wakeLock.request("screen");
+                    if (label) label.textContent = "Attivo";
+                    if (btn) btn.classList.add("bg-saffron-100", "text-amber-900", "border-saffron-400");
+                    showToast("Schermo mantenuto acceso!", "success");
+                }
+            } catch (err) { showToast("Impossibile attivare la modalità schermo acceso", "info"); }
+        }
+
+        async function releaseWakeLock() {
+            if (wakeLock !== null) { try { await wakeLock.release(); } catch (e) {} wakeLock = null; }
+        }
+
+        function addSingleIngredientToShopping(text) {
+            shoppingList.unshift({ id: "shop-" + Date.now() + Math.random().toString(36).slice(2, 6), text: text, checked: false });
+            syncShoppingDB(); showToast(`Aggiunto: ${text}`, "success");
+        }
+
+        function addAllIngredientsToShopping(recipeId) {
+            const recipe = recipesDB.find(r => r.id === recipeId);
+            if (!recipe) return;
+            recipe.ingredients.forEach(ing => {
+                const qtyText = formatQuantity(ing.quantity, currentServingsMultiplier);
+                const fullLabel = `${qtyText ? qtyText + ' ' : ''}${ing.unit !== 'q.b.' ? ing.unit + ' ' : ''}${ing.name}${ing.unit === 'q.b.' ? ' (q.b.)' : ''}`.trim();
+                shoppingList.unshift({ id: "shop-" + Date.now() + Math.random().toString(36).slice(2, 6), text: `${fullLabel} (${recipe.title})`, checked: false });
+            });
+            syncShoppingDB(); showToast("Ingredienti aggiunti alla Lista Spesa!", "success");
+        }
+
+        function handleAddManualShoppingItem(e) {
+            e.preventDefault();
+            const input = document.getElementById("manual-shopping-input");
+            const val = input.value.trim();
+            if (!val) return;
+            addSingleIngredientToShopping(val); input.value = "";
+        }
+
+        function toggleShoppingItem(id) {
+            const item = shoppingList.find(i => i.id === id);
+            if (item) { item.checked = !item.checked; syncShoppingDB(); }
+        }
+
+        function deleteShoppingItem(id) { shoppingList = shoppingList.filter(i => i.id !== id); syncShoppingDB(); }
+
+        function clearCompletedShoppingItems() {
+            shoppingList = shoppingList.filter(i => !i.checked);
+            syncShoppingDB(); showToast("Articoli acquistati rimossi", "info");
+        }
+
+        function renderShoppingList() {
+            const container = document.getElementById("shopping-list-container");
+            const badge = document.getElementById("shopping-badge");
+            const uncheckedCount = shoppingList.filter(i => !i.checked).length;
+            if (uncheckedCount > 0) { badge.textContent = uncheckedCount; badge.classList.remove("hidden"); }
+            else badge.classList.add("hidden");
+
+            if (shoppingList.length === 0) {
+                container.innerHTML = `<div class="text-center py-10 space-y-2.5">
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-cream-100 to-terracotta-50 text-terracotta-400 mx-auto flex items-center justify-center border border-cream-200">
+                        <i class="ph ph-basket text-3xl"></i>
+                    </div>
+                    <p class="text-sm font-bold text-stone-700">La tua lista della spesa è vuota</p>
+                    <p class="text-xs text-stone-400 max-w-[220px] mx-auto">Aggiungi ingredienti dalle ricette catturate o scrivili qui sopra.</p></div>`;
+                return;
+            }
+
+            container.innerHTML = shoppingList.map(item => `
+                <div class="flex items-center justify-between p-3 rounded-2xl bg-cream-50/70 border border-cream-200 gap-3 hover:border-terracotta-200/60 transition group">
+                    <label class="flex items-center gap-3 flex-1 cursor-pointer select-none">
+                        <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="toggleShoppingItem('${item.id}')" class="w-5 h-5 rounded-lg accent-terracotta-600 cursor-pointer">
+                        <span class="text-sm ${item.checked ? 'line-through text-stone-400' : 'text-stone-800 font-semibold'} transition-all">${escapeHTML(item.text)}</span>
+                    </label>
+                    <button onclick="deleteShoppingItem('${item.id}')" class="p-1.5 text-stone-400 hover:text-red-500 transition opacity-0 group-hover:opacity-100 focus:opacity-100">
+                        <i class="ph-bold ph-x text-base"></i>
+                    </button>
+                </div>`).join("");
+        }
+
+        function openBackupModal() { document.getElementById("backup-modal").classList.remove("hidden"); }
+        function closeBackupModal() { document.getElementById("backup-modal").classList.add("hidden"); }
+
+        function exportDatabaseJSON() {
+            const backupData = { app: "Cattura Ricette", exportedAt: new Date().toISOString(), recipes: recipesDB, shoppingList: shoppingList };
+            const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url; a.download = `CatturaRicette_Backup_${new Date().toISOString().slice(0, 10)}.json`;
+            a.click(); URL.revokeObjectURL(url);
+            showToast("Backup JSON scaricato!", "success");
+        }
+
+        function importDatabaseJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (Array.isArray(data.recipes)) {
+                        for (const rec of data.recipes) await saveRecipeToDB(rec);
+                        if (Array.isArray(data.shoppingList)) { shoppingList = data.shoppingList; await syncShoppingDB(); }
+                        closeBackupModal();
+                        showToast(`Importate ${data.recipes.length} ricette!`, "success");
+                        switchTab("archive");
+                    } else throw new Error("Formato non valido");
+                } catch (err) { showToast("File JSON non valido o corrotto", "error"); }
+            };
+            reader.readAsText(file);
+        }
+
+        function switchTab(tabName) {
+            const views = ["extract", "archive", "shopping"];
+            const navPill = document.getElementById("nav-pill");
+            const tabIndex = views.indexOf(tabName);
+            if (navPill) {
+                navPill.style.width = `calc(33.33% - 5.33px)`;
+                navPill.style.left = `calc(${tabIndex * 33.333}% + 4px)`;
+            }
+            views.forEach(v => {
+                const section = document.getElementById(`view-${v}`);
+                const btn = document.getElementById(`nav-${v}`);
+                const icon = btn.querySelector("i");
+                if (v === tabName) {
+                    section.classList.remove("hidden");
+                    btn.classList.remove("text-stone-500", "font-semibold");
+                    btn.classList.add("text-terracotta-600", "font-bold");
+                    icon.classList.replace("ph", "ph-fill");
+                } else {
+                    section.classList.add("hidden");
+                    btn.classList.add("text-stone-500", "font-semibold");
+                    btn.classList.remove("text-terracotta-600", "font-bold");
+                    icon.classList.replace("ph-fill", "ph");
+                }
+            });
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
+        async function pasteFromClipboard() {
+            try {
+                const text = await navigator.clipboard.readText();
+                if (text) { document.getElementById("recipe-url").value = text.trim(); showToast("Link incollato!", "success"); }
+                else showToast("Gli appunti sono vuoti", "info");
+            } catch (err) {
+                document.getElementById("recipe-url").focus();
+                showToast("Tocca il campo e seleziona 'Incolla'", "info");
+            }
+        }
+
+        function toggleRawTextSection() {
+            const container = document.getElementById("raw-text-container");
+            const chevron = document.getElementById("raw-text-chevron");
+            container.classList.toggle("hidden");
+            chevron.classList.toggle("rotate-180");
+        }
+
+        function showToast(message, type = "info") {
+            const container = document.getElementById("toast-container");
+            const toast = document.createElement("div");
+            const styles = { success: "bg-stone-900 text-white border-stone-700", error: "bg-terracotta-600 text-white border-terracotta-500", info: "bg-stone-800 text-white border-stone-700" };
+            const icons = { success: '<i class="ph-fill ph-check-circle text-emerald-400 text-lg"></i>', error: '<i class="ph-fill ph-warning-circle text-white text-lg"></i>', info: '<i class="ph-fill ph-info text-saffron-400 text-lg"></i>' };
+            toast.className = `${styles[type]} px-4 py-3 rounded-2xl shadow-elevated border text-xs sm:text-sm font-semibold flex items-center gap-2.5 max-w-md w-full transition-all duration-300 transform translate-y-0 opacity-100`;
+            toast.innerHTML = `${icons[type]} <span>${escapeHTML(message)}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.classList.add("opacity-0", "-translate-y-2"); setTimeout(() => toast.remove(), 300); }, 3200);
+        }
+
+        function escapeHTML(str) {
+            if (str === null || str === undefined) return "";
+            return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        window.addEventListener('resize', () => {
+            const activeTab = ['extract', 'archive', 'shopping'].find(v => !document.getElementById(`view-${v}`).classList.contains('hidden')) || 'extract';
+            switchTab(activeTab);
+        });
+
+        window.onload = function () {
+            loadAllData();
+            setTimeout(() => switchTab('extract'), 50);
+        };
+    </script>
+</body>
+</html>
