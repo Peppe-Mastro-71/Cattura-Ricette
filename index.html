@@ -9,7 +9,6 @@
     <meta name="apple-mobile-web-app-title" content="Cattura Ricette">
     <title>Cattura Ricette — Il tuo Ricettario AI Locale</title>
 
-    <!-- PWA: manifest statico + icone reali (richiesti da Chrome Android per l'installazione) -->
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
     <link rel="apple-touch-icon" href="icon-192.png">
@@ -123,8 +122,8 @@
 
     <header class="sticky top-0 z-30 bg-cream-50/90 backdrop-blur-xl border-b border-cream-200/70 shadow-[0_1px_0_rgba(255,255,255,0.7),0_4px_24px_rgba(41,29,24,0.05)]">
         <div class="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between gap-2">
-            <button onclick="openInstallModal()" class="animate-net-hover flex items-center gap-3 text-left group focus:outline-none" title="Vedi icona app e aggiungi a schermata Home">
-                <div class="relative w-12 h-12 rounded-[18px] bg-gradient-to-br from-terracotta-400 via-terracotta-600 to-amber-600 p-[1.5px] shadow-warm ring-1 ring-white/80 flex items-center justify-center shrink-0 transition-transform duration-300 group-active:scale-95 overflow-hidden">
+            <div class="animate-net-hover flex items-center gap-3 text-left group">
+                <div class="relative w-12 h-12 rounded-[18px] bg-gradient-to-br from-terracotta-400 via-terracotta-600 to-amber-600 p-[1.5px] shadow-warm ring-1 ring-white/80 flex items-center justify-center shrink-0 overflow-hidden">
                     <div class="w-full h-full rounded-[16px] bg-gradient-to-br from-terracotta-500 via-terracotta-600 to-amber-600 flex items-center justify-center overflow-hidden">
                     <svg id="brand-logo-svg" viewBox="0 0 120 120" class="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Logo Cattura Ricette">
                         <defs>
@@ -148,7 +147,6 @@
                             <circle cx="88" cy="15" r="3" fill="#FEF08A"/>
                             <circle cx="34" cy="18" r="2.2" fill="#FFFFFF" fill-opacity="0.9"/>
                             <path d="M92 74 C98 71, 103 66, 106 60" stroke="#FDE68A" stroke-width="2" stroke-linecap="round" stroke-dasharray="3 4"/>
-
                             <path d="M40 42 C56 16, 98 16, 108 42 C116 64, 98 92, 72 86 C56 82, 42 74, 40 42 Z" fill="url(#netBagGrad)"/>
 
                             <g transform="translate(65, 36) rotate(-28)">
@@ -213,13 +211,9 @@
                         <p class="text-[11px] font-semibold text-stone-500 tracking-wide">Acchiappa &amp; salva dal web e social</p>
                     </div>
                 </div>
-            </button>
+            </div>
             
             <div class="flex items-center gap-1.5">
-                <button onclick="openInstallModal()" class="p-2.5 rounded-xl bg-white hover:bg-terracotta-50 text-terracotta-700 border border-cream-200 hover:border-terracotta-200 shadow-soft transition active:scale-95 flex items-center gap-1.5 text-xs font-bold" title="Aggiungi Icona a Schermata Home">
-                    <i class="ph-bold ph-device-mobile text-base"></i>
-                    <span class="hidden sm:inline">App Home</span>
-                </button>
                 <button onclick="openBackupModal()" class="p-2.5 rounded-xl bg-white hover:bg-cream-100 text-stone-700 border border-cream-200 shadow-soft transition active:scale-95 flex items-center gap-1.5 text-xs font-bold" title="Backup & Ripristino Locale">
                     <i class="ph-bold ph-database text-base text-terracotta-600"></i>
                     <span class="hidden sm:inline">Archivio</span>
@@ -304,19 +298,6 @@
 
             <div id="extracted-preview-card" class="hidden"></div>
 
-            <div onclick="openInstallModal()" class="cursor-pointer bg-gradient-to-r from-white via-cream-50 to-terracotta-50/60 hover:to-terracotta-50 rounded-2xl p-4 border border-cream-200/80 flex items-center justify-between gap-3 transition active:scale-[0.99] shadow-soft hover:shadow-elevated">
-                <div class="flex items-center gap-3">
-                    <div class="w-11 h-11 rounded-xl shadow-md border border-white shrink-0 bg-terracotta-600 flex items-center justify-center text-white">
-                        <i class="ph-bold ph-device-mobile text-xl"></i>
-                    </div>
-                    <div>
-                        <p class="text-xs font-extrabold text-stone-900">Aggiungi Cattura Ricette alla Home</p>
-                        <p class="text-[11px] text-stone-600">Avviala con un tocco dall'icona con il retino</p>
-                    </div>
-                </div>
-                <i class="ph-bold ph-caret-right text-terracotta-600 text-lg shrink-0"></i>
-            </div>
-
             <div class="bg-white/70 rounded-2xl p-4 border border-cream-200/80 shadow-soft">
                 <p class="text-[11px] font-bold uppercase tracking-[0.1em] text-stone-400 text-center mb-3">Fonti da cui puoi catturare</p>
                 <div class="flex flex-wrap justify-center gap-2 text-xs font-semibold text-stone-700">
@@ -371,65 +352,6 @@
     <div id="recipe-detail-modal" class="fixed inset-0 z-40 hidden bg-stone-950/60 backdrop-blur-sm overflow-y-auto">
         <div class="min-h-screen sm:py-6 px-0 sm:px-4 flex justify-center">
             <div id="recipe-detail-content" class="bg-cream-50 w-full max-w-2xl sm:rounded-[32px] shadow-2xl overflow-hidden flex flex-col justify-between pb-10"></div>
-        </div>
-    </div>
-
-    <!-- ========================================== -->
-    <!-- MODAL INSTALLAZIONE AGGIORNATO             -->
-    <!-- ========================================== -->
-    <div id="install-modal" class="fixed inset-0 z-50 hidden bg-stone-950/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-cream-50 w-full max-w-md rounded-[32px] p-6 shadow-2xl border border-cream-200 space-y-5 relative animate-fade-up my-4">
-            <button onclick="closeInstallModal()" class="absolute right-4 top-4 p-2 rounded-xl bg-cream-100 text-stone-600 hover:text-stone-900 hover:bg-cream-200 transition z-10">
-                <i class="ph-bold ph-x text-lg"></i>
-            </button>
-
-            <div class="text-center space-y-3 pt-2">
-                <div class="relative inline-block">
-                    <img id="modal-app-icon-preview" src="icon-192.png" onerror="this.style.display='none'" alt="Icona Cattura Ricette" class="w-24 h-24 rounded-[26px] shadow-warm border-4 border-white mx-auto bg-terracotta-600">
-                    <span class="absolute -bottom-2 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-stone-900 text-white text-[10px] font-bold whitespace-nowrap shadow">Cattura Ricette</span>
-                </div>
-                <div class="pt-2">
-                    <h3 class="font-serif font-extrabold text-xl text-stone-900">Installa Cattura Ricette</h3>
-                    <p class="text-xs text-stone-600 mt-1">Salvala come vera app sul telefono con icona dedicata.</p>
-                </div>
-            </div>
-
-            <!-- Pulsante installazione nativa (appare solo su PWA installabile) -->
-            <button id="pwa-install-trigger" onclick="triggerNativeInstall()" class="hidden w-full py-4 px-4 bg-gradient-to-r from-terracotta-600 to-amber-600 hover:from-terracotta-700 hover:to-amber-700 text-white rounded-2xl text-sm font-bold flex items-center justify-center gap-2 shadow-warm transition btn-shine">
-                <i class="ph-bold ph-download-simple text-lg"></i> Installa come App
-            </button>
-
-            <!-- Istruzioni manuali -->
-            <div class="space-y-2.5 text-xs text-stone-700 bg-white p-4 rounded-2xl border border-cream-200 shadow-soft">
-                <p class="font-bold text-stone-900 text-[11px] uppercase tracking-wider mb-1">Installazione manuale</p>
-                <div class="flex items-start gap-2.5">
-                    <span class="w-5 h-5 rounded-full bg-terracotta-100 text-terracotta-700 font-bold flex items-center justify-center shrink-0 mt-0.5 text-[11px]">1</span>
-                    <p><strong>iPhone / Safari:</strong> Tocca <strong>Condividi</strong> <i class="ph-bold ph-export inline text-terracotta-600"></i> in basso e scegli <strong>"Aggiungi alla schermata Home"</strong>.</p>
-                </div>
-                <div class="flex items-start gap-2.5 pt-1 border-t border-cream-100">
-                    <span class="w-5 h-5 rounded-full bg-terracotta-100 text-terracotta-700 font-bold flex items-center justify-center shrink-0 mt-0.5 text-[11px]">2</span>
-                    <p><strong>Android / Chrome:</strong> Tocca i <strong>3 puntini</strong> <i class="ph-bold ph-dots-three-vertical inline text-terracotta-600"></i> in alto a destra → <strong>"Installa app"</strong> (o <strong>"Aggiungi a schermata Home"</strong>).</p>
-                </div>
-            </div>
-
-            <!-- Sezione download icone (per chi ospita su GitHub) -->
-            <div class="space-y-2.5 text-xs text-stone-700 bg-gradient-to-br from-saffron-50 to-amber-50 p-4 rounded-2xl border border-saffron-200/70">
-                <div class="flex items-start gap-2">
-                    <i class="ph-fill ph-lightbulb text-saffron-600 text-lg shrink-0"></i>
-                    <div>
-                        <p class="font-bold text-amber-900 text-[11px] uppercase tracking-wider mb-1">Stai ospitando su GitHub?</p>
-                        <p class="text-[11px] text-amber-950 leading-relaxed">Scarica le due icone e caricale nella stessa cartella di <code>index.html</code> su GitHub, con i nomi esatti <strong>icon-192.png</strong> e <strong>icon-512.png</strong>.</p>
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-2 pt-1">
-                    <button onclick="downloadAppIconPNG(192)" class="py-2.5 px-3 bg-white hover:bg-cream-100 text-stone-800 border border-cream-200 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 transition active:scale-95 shadow-soft">
-                        <i class="ph-bold ph-download-simple text-sm text-terracotta-600"></i> Icona 192
-                    </button>
-                    <button onclick="downloadAppIconPNG(512)" class="py-2.5 px-3 bg-white hover:bg-cream-100 text-stone-800 border border-cream-200 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 transition active:scale-95 shadow-soft">
-                        <i class="ph-bold ph-download-simple text-sm text-terracotta-600"></i> Icona 512
-                    </button>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -497,11 +419,8 @@
         let currentOpenedRecipeId = null;
         let currentServingsMultiplier = 1;
         let wakeLock = null;
-        let generatedIcon192DataUrl = "";
-        let generatedIcon512DataUrl = "";
-        let deferredInstallPrompt = null;
 
-        // ============ SERVICE WORKER REGISTRATION ============
+        // Registrazione Service Worker (necessario per l'installazione PWA)
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js')
@@ -510,211 +429,7 @@
             });
         }
 
-        // ============ BEFOREINSTALLPROMPT ============
-        window.addEventListener("beforeinstallprompt", (e) => {
-            e.preventDefault();
-            deferredInstallPrompt = e;
-            const installBtn = document.getElementById("pwa-install-trigger");
-            if (installBtn) {
-                installBtn.classList.remove("hidden");
-                installBtn.classList.add("flex");
-            }
-        });
-
-        window.addEventListener("appinstalled", () => {
-            showToast("Cattura Ricette installata con successo! 🎉", "success");
-            deferredInstallPrompt = null;
-        });
-
-        async function triggerNativeInstall() {
-            if (!deferredInstallPrompt) {
-                showToast("Usa il menu di Chrome per installare l'app", "info");
-                return;
-            }
-            deferredInstallPrompt.prompt();
-            const { outcome } = await deferredInstallPrompt.userChoice;
-            if (outcome === "accepted") {
-                showToast("Installazione avviata!", "success");
-            }
-            deferredInstallPrompt = null;
-        }
-
-        // ============ ICON GENERATION (solo per anteprima + download) ============
-        function renderIconToDataURL(size) {
-            const canvas = document.createElement("canvas");
-            canvas.width = size;
-            canvas.height = size;
-            const ctx = canvas.getContext("2d");
-            const s = size / 120;
-
-            const bgGrad = ctx.createLinearGradient(0, 0, size, size);
-            bgGrad.addColorStop(0, "#DC5B38");
-            bgGrad.addColorStop(0.55, "#C84B2A");
-            bgGrad.addColorStop(1, "#D97706");
-            ctx.fillStyle = bgGrad;
-            ctx.fillRect(0, 0, size, size);
-
-            const glow = ctx.createRadialGradient(size * 0.62, size * 0.44, size * 0.04, size * 0.62, size * 0.44, size * 0.48);
-            glow.addColorStop(0, "rgba(254, 243, 199, 0.32)");
-            glow.addColorStop(1, "rgba(254, 243, 199, 0)");
-            ctx.fillStyle = glow;
-            ctx.fillRect(0, 0, size, size);
-
-            ctx.save();
-            ctx.scale(s, s);
-
-            function drawStar(cx, cy, rOuter, rInner, color) {
-                ctx.fillStyle = color;
-                ctx.beginPath();
-                for (let i = 0; i < 8; i++) {
-                    const r = i % 2 === 0 ? rOuter : rInner;
-                    const angle = (i * Math.PI) / 4;
-                    const x = cx + Math.cos(angle) * r;
-                    const y = cy + Math.sin(angle) * r;
-                    if (i === 0) ctx.moveTo(x, y);
-                    else ctx.lineTo(x, y);
-                }
-                ctx.closePath();
-                ctx.fill();
-            }
-            drawStar(22, 39, 9, 2.5, "#FDE047");
-            drawStar(98, 90.3, 6.3, 1.8, "#FDE047");
-
-            ctx.fillStyle = "#FEF08A";
-            ctx.beginPath();
-            ctx.arc(88, 15, 3, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
-            ctx.beginPath();
-            ctx.arc(34, 18, 2.2, 0, Math.PI * 2);
-            ctx.fill();
-
-            function traceNetBagPath() {
-                ctx.beginPath();
-                ctx.moveTo(40, 42);
-                ctx.bezierCurveTo(56, 16, 98, 16, 108, 42);
-                ctx.bezierCurveTo(116, 64, 98, 92, 72, 86);
-                ctx.bezierCurveTo(56, 82, 42, 74, 40, 42);
-                ctx.closePath();
-            }
-
-            const netGrad = ctx.createLinearGradient(36, 22, 104, 86);
-            netGrad.addColorStop(0, "rgba(255, 255, 255, 0.48)");
-            netGrad.addColorStop(1, "rgba(254, 243, 199, 0.22)");
-            ctx.fillStyle = netGrad;
-            traceNetBagPath();
-            ctx.fill();
-
-            ctx.save(); ctx.translate(65, 36); ctx.rotate((-28 * Math.PI) / 180);
-            ctx.fillStyle = "#92400E"; ctx.beginPath(); ctx.roundRect(-15, -2.2, 30, 4.4, 2.2); ctx.fill();
-            ctx.fillStyle = "#F59E0B"; ctx.strokeStyle = "#78350F"; ctx.lineWidth = 1.5;
-            ctx.beginPath(); ctx.roundRect(-10, -4.8, 20, 9.6, 3); ctx.fill(); ctx.stroke();
-            ctx.strokeStyle = "#FEF3C7"; ctx.lineWidth = 1.2; ctx.lineCap = "round";
-            ctx.beginPath(); ctx.moveTo(-7, -2.2); ctx.lineTo(7, -2.2); ctx.stroke();
-            ctx.restore();
-
-            ctx.save(); ctx.translate(86, 44); ctx.rotate((32 * Math.PI) / 180);
-            ctx.fillStyle = "#334155"; ctx.beginPath(); ctx.roundRect(-2.4, 6, 4.8, 15, 2.4); ctx.fill();
-            ctx.fillStyle = "#CBD5E1"; ctx.beginPath(); ctx.roundRect(-3, 4, 6, 3.5, 1.2); ctx.fill();
-            ctx.strokeStyle = "#F8FAFC"; ctx.lineWidth = 2;
-            ctx.beginPath(); ctx.moveTo(0, 5); ctx.bezierCurveTo(-8.5, -2, -8.5, -16, 0, -18); ctx.bezierCurveTo(8.5, -16, 8.5, -2, 0, 5); ctx.stroke();
-            ctx.strokeStyle = "#E2E8F0"; ctx.lineWidth = 1.5;
-            ctx.beginPath(); ctx.moveTo(0, 5); ctx.bezierCurveTo(-4.2, -2, -4.2, -15, 0, -18); ctx.bezierCurveTo(4.2, -15, 4.2, -2, 0, 5); ctx.stroke();
-            ctx.restore();
-
-            ctx.save(); ctx.translate(88, 67); ctx.rotate((56 * Math.PI) / 180);
-            ctx.fillStyle = "#92400E"; ctx.beginPath(); ctx.roundRect(-2.2, -1, 4.4, 18, 2.2); ctx.fill();
-            ctx.fillStyle = "#D97706"; ctx.strokeStyle = "#78350F"; ctx.lineWidth = 1.6;
-            ctx.beginPath(); ctx.ellipse(0, -7.5, 6.2, 8.5, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-            ctx.fillStyle = "rgba(253, 230, 138, 0.5)";
-            ctx.beginPath(); ctx.ellipse(-1.5, -8.5, 2, 3.5, 0, 0, Math.PI * 2); ctx.fill();
-            ctx.restore();
-
-            ctx.save(); ctx.translate(62, 62); ctx.rotate((-42 * Math.PI) / 180);
-            ctx.fillStyle = "#1E293B"; ctx.beginPath(); ctx.roundRect(-2.3, 3, 4.6, 16, 2.3); ctx.fill();
-            ctx.fillStyle = "#F8FAFC"; ctx.strokeStyle = "#475569"; ctx.lineWidth = 1.6; ctx.lineJoin = "round";
-            ctx.beginPath(); ctx.moveTo(-6.5, -11); ctx.lineTo(6.5, -11); ctx.lineTo(5.2, 3); ctx.lineTo(-5.2, 3); ctx.closePath(); ctx.fill(); ctx.stroke();
-            ctx.strokeStyle = "#64748B"; ctx.lineWidth = 1.4; ctx.lineCap = "round";
-            ctx.beginPath();
-            ctx.moveTo(-2.4, -8); ctx.lineTo(-2.1, 0);
-            ctx.moveTo(0, -8); ctx.lineTo(0, 0);
-            ctx.moveTo(2.4, -8); ctx.lineTo(2.1, 0);
-            ctx.stroke();
-            ctx.restore();
-
-            ctx.save(); traceNetBagPath(); ctx.clip();
-            ctx.strokeStyle = "rgba(255, 255, 255, 0.55)"; ctx.lineWidth = 1.35;
-            ctx.beginPath();
-            ctx.moveTo(35, 30); ctx.lineTo(95, 90);
-            ctx.moveTo(48, 20); ctx.lineTo(108, 80);
-            ctx.moveTo(63, 14); ctx.lineTo(118, 69);
-            ctx.moveTo(79, 12); ctx.lineTo(122, 55);
-            ctx.moveTo(30, 46); ctx.lineTo(80, 96);
-            ctx.moveTo(95, 15); ctx.lineTo(35, 75);
-            ctx.moveTo(108, 26); ctx.lineTo(48, 86);
-            ctx.moveTo(116, 42); ctx.lineTo(62, 96);
-            ctx.moveTo(80, 12); ctx.lineTo(28, 64);
-            ctx.stroke(); ctx.restore();
-
-            ctx.strokeStyle = "#FFFBEB"; ctx.lineWidth = 2.2; ctx.lineJoin = "round";
-            traceNetBagPath(); ctx.stroke();
-
-            ctx.save(); ctx.translate(55, 58); ctx.rotate((-38 * Math.PI) / 180);
-            ctx.strokeStyle = "#78350F"; ctx.lineWidth = 5.6;
-            ctx.beginPath(); ctx.ellipse(0, 0, 12.5, 24.5, 0, 0, Math.PI * 2); ctx.stroke();
-            ctx.strokeStyle = "#FDE68A"; ctx.lineWidth = 3.2;
-            ctx.beginPath(); ctx.ellipse(0, 0, 12.5, 24.5, 0, 0, Math.PI * 2); ctx.stroke();
-            ctx.restore();
-
-            const woodGrad = ctx.createLinearGradient(12, 108, 46, 74);
-            woodGrad.addColorStop(0, "#5C260B");
-            woodGrad.addColorStop(0.5, "#9A3412");
-            woodGrad.addColorStop(1, "#C2410C");
-            ctx.strokeStyle = woodGrad; ctx.lineWidth = 8.5; ctx.lineCap = "round";
-            ctx.beginPath(); ctx.moveTo(14, 104); ctx.lineTo(41, 75); ctx.stroke();
-            ctx.strokeStyle = "rgba(253, 186, 116, 0.45)"; ctx.lineWidth = 2;
-            ctx.beginPath(); ctx.moveTo(15, 101); ctx.lineTo(39, 75); ctx.stroke();
-            ctx.fillStyle = "#78350F"; ctx.strokeStyle = "#FDE68A"; ctx.lineWidth = 1.3;
-            ctx.beginPath(); ctx.arc(14, 104, 4.6, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-
-            ctx.save(); ctx.translate(41, 75); ctx.rotate((-47 * Math.PI) / 180);
-            ctx.fillStyle = "#FDE047"; ctx.strokeStyle = "#78350F"; ctx.lineWidth = 1.6;
-            ctx.beginPath(); ctx.roundRect(-4.5, -4.5, 9, 9, 2.5); ctx.fill(); ctx.stroke();
-            ctx.restore();
-
-            ctx.restore();
-            return canvas.toDataURL("image/png");
-        }
-
-        function generateAppIcons() {
-            try {
-                generatedIcon192DataUrl = renderIconToDataURL(192);
-                generatedIcon512DataUrl = renderIconToDataURL(512);
-                const modalImg = document.getElementById("modal-app-icon-preview");
-                if (modalImg) modalImg.src = generatedIcon192DataUrl;
-            } catch (err) {
-                console.warn("Generazione icona canvas non riuscita:", err);
-            }
-        }
-
-        function downloadAppIconPNG(size = 512) {
-            const dataUrl = size === 192 ? generatedIcon192DataUrl : generatedIcon512DataUrl;
-            if (!dataUrl) {
-                showToast("Icona non ancora pronta, riprova tra un secondo", "info");
-                return;
-            }
-            const a = document.createElement("a");
-            a.href = dataUrl;
-            a.download = `icon-${size}.png`;
-            a.click();
-            showToast(`Icona ${size}×${size} scaricata (rinominala icon-${size}.png)`, "success");
-        }
-
-        function openInstallModal() { document.getElementById("install-modal").classList.remove("hidden"); }
-        function closeInstallModal() { document.getElementById("install-modal").classList.add("hidden"); }
-
-        // ============ RICETTE SAMPLE + DB (invariati) ============
+        // ========== DATI E LOGICA APP ==========
         const SAMPLE_RECIPES = [
             {
                 id: "sample-carbonara-1", title: "Spaghetti alla Carbonara Tradizionale", category: "Primi Piatti",
@@ -812,8 +527,7 @@
 
         async function saveRecipeToDB(recipe) {
             const idx = recipesDB.findIndex(r => r.id === recipe.id);
-            if (idx >= 0) recipesDB[idx] = recipe;
-            else recipesDB.unshift(recipe);
+            if (idx >= 0) recipesDB[idx] = recipe; else recipesDB.unshift(recipe);
             try {
                 const db = await openIndexedDB();
                 const tx = db.transaction(STORE_RECIPES, "readwrite");
@@ -829,8 +543,7 @@
                 const tx = db.transaction(STORE_RECIPES, "readwrite");
                 tx.objectStore(STORE_RECIPES).delete(id);
             } catch (e) { localStorage.setItem("catturaricette_recipes", JSON.stringify(recipesDB)); }
-            closeRecipeModal();
-            renderRecipeList();
+            closeRecipeModal(); renderRecipeList();
             showToast("Ricetta rimossa dall'archivio", "info");
         }
 
@@ -863,23 +576,18 @@
         async function handleExtractRecipe() {
             const urlInput = document.getElementById("recipe-url").value.trim();
             const rawTextInput = document.getElementById("recipe-raw-text").value.trim();
-            if (!urlInput && !rawTextInput) {
-                showToast("Incolla un link o il testo di una ricetta da catturare!", "error");
-                return;
-            }
+            if (!urlInput && !rawTextInput) { showToast("Incolla un link o il testo di una ricetta!", "error"); return; }
             const btn = document.getElementById("extract-btn");
             const loadingBox = document.getElementById("extract-loading");
             const previewBox = document.getElementById("extracted-preview-card");
-            btn.disabled = true;
-            btn.classList.add("opacity-60", "cursor-not-allowed");
-            loadingBox.classList.remove("hidden");
-            previewBox.classList.add("hidden");
+            btn.disabled = true; btn.classList.add("opacity-60", "cursor-not-allowed");
+            loadingBox.classList.remove("hidden"); previewBox.classList.add("hidden");
 
             const systemPrompt = `Sei uno chef professionista ed esperto di organizzazione gastronomica per l'app "Cattura Ricette".
 Il tuo compito è estrarre, tradurre in italiano (se in un'altra lingua) e strutturare in modo impeccabile una ricetta partendo da un URL (sito web, blog, YouTube, TikTok, Instagram, Facebook) e/o da un testo grezzo/didascalia fornito dall'utente.
 Usa Google Search se viene fornito un URL per trovare i dettagli esatti della ricetta associata a quel link o titolo.
 REGOLE RIGIDE PER I DATI:
-1. Estrai quantità numeriche precise (es. 320, 1.5, 2) e unità di misura standardizzate (es. "g", "ml", "pz", "cucchiai", "q.b.") per permettere il ricalcolo dinamico delle porzioni. Se un ingrediente è "quanto basta", metti quantity: 0 e unit: "q.b.".
+1. Estrai quantità numeriche precise e unità di misura standardizzate (g, ml, pz, cucchiai, q.b.). Se "quanto basta", quantity: 0 e unit: "q.b.".
 2. Dividi la preparazione in passaggi chiari, sequenziali e pratici.
 3. Assegna una categoria tra: "Antipasti", "Primi Piatti", "Secondi Piatti", "Contorni", "Dolci", "Lievitati", "Piatti Unici".
 4. Rispondi ESCLUSIVAMENTE con un oggetto JSON valido conforme allo schema richiesto.`;
@@ -911,11 +619,7 @@ REGOLE RIGIDE PER I DATI:
 
             try {
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
-                const result = await fetchWithRetry(apiUrl, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload)
-                });
+                const result = await fetchWithRetry(apiUrl, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
                 const rawJsonText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
                 if (!rawJsonText) throw new Error("Risposta vuota dal modello AI");
                 const parsedRecipe = JSON.parse(rawJsonText);
@@ -939,12 +643,11 @@ REGOLE RIGIDE PER I DATI:
                 renderExtractedPreview(newRecipe);
             } catch (error) {
                 console.error("Errore cattura:", error);
-                showToast("Link protetto o non leggibile: incolla anche il testo/didascalia qui sotto.", "error");
+                showToast("Link protetto o non leggibile: incolla anche il testo/didascalia.", "error");
                 const container = document.getElementById("raw-text-container");
                 if (container.classList.contains("hidden")) toggleRawTextSection();
             } finally {
-                btn.disabled = false;
-                btn.classList.remove("opacity-60", "cursor-not-allowed");
+                btn.disabled = false; btn.classList.remove("opacity-60", "cursor-not-allowed");
                 loadingBox.classList.add("hidden");
             }
         }
@@ -975,8 +678,7 @@ REGOLE RIGIDE PER I DATI:
                             Vai al Ricettario
                         </button>
                     </div>
-                </div>
-            `;
+                </div>`;
             previewBox.classList.remove("hidden");
         }
 
@@ -1016,44 +718,42 @@ REGOLE RIGIDE PER I DATI:
             countBadge.textContent = `${filtered.length} ${filtered.length === 1 ? 'ricetta' : 'ricette'}`;
 
             if (filtered.length === 0) {
-                grid.innerHTML = `
-                    <div class="bg-white rounded-[28px] p-8 text-center border border-cream-200 space-y-3 shadow-soft animate-fade-up">
-                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-cream-100 to-terracotta-50 text-terracotta-500 mx-auto flex items-center justify-center border border-cream-200">
-                            <i class="ph-bold ph-bowl-steam text-2xl"></i>
-                        </div>
-                        <h3 class="font-serif font-black text-lg text-stone-900">Nessuna ricetta trovata</h3>
-                        <p class="text-xs text-stone-500 max-w-xs mx-auto">Cambia filtro di ricerca oppure cattura una nuova ricetta da un link o dai social.</p>
-                        <button onclick="switchTab('extract')" class="mt-2 px-4 py-2.5 bg-gradient-to-r from-terracotta-500 to-terracotta-700 text-white rounded-xl text-xs font-bold shadow-warm active:scale-95 transition">+ Cattura Nuova Ricetta</button>
-                    </div>`;
+                grid.innerHTML = `<div class="bg-white rounded-[28px] p-8 text-center border border-cream-200 space-y-3 shadow-soft animate-fade-up">
+                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-cream-100 to-terracotta-50 text-terracotta-500 mx-auto flex items-center justify-center border border-cream-200">
+                        <i class="ph-bold ph-bowl-steam text-2xl"></i>
+                    </div>
+                    <h3 class="font-serif font-black text-lg text-stone-900">Nessuna ricetta trovata</h3>
+                    <p class="text-xs text-stone-500 max-w-xs mx-auto">Cambia filtro di ricerca oppure cattura una nuova ricetta.</p>
+                    <button onclick="switchTab('extract')" class="mt-2 px-4 py-2.5 bg-gradient-to-r from-terracotta-500 to-terracotta-700 text-white rounded-xl text-xs font-bold shadow-warm active:scale-95 transition">+ Cattura Nuova Ricetta</button>
+                </div>`;
                 return;
             }
 
             grid.innerHTML = filtered.map((recipe, idx) => {
                 const sourceIcon = getSourceIcon(recipe.sourceUrl);
                 const theme = getCategoryTheme(recipe.category);
-                return `
-                    <article onclick="openRecipeModal('${recipe.id}')" class="card-gradient-border rounded-[26px] p-4 sm:p-5 shadow-soft hover:shadow-elevated hover:-translate-y-0.5 transition-all duration-200 cursor-pointer active:scale-[0.99] flex flex-col justify-between gap-3 animate-fade-up ${idx < 3 ? 'stagger-'+(idx+1) : ''}">
-                        <div class="flex items-start justify-between gap-3">
-                            <div class="flex items-start gap-3 flex-1 min-w-0">
-                                <div class="w-10 h-10 rounded-xl ${theme.bg} ${theme.text} ${theme.border} border flex items-center justify-center shrink-0 shadow-soft">
-                                    <i class="${theme.icon} text-lg"></i>
-                                </div>
-                                <div class="space-y-1 min-w-0 flex-1">
-                                    <span class="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold ${theme.bg} ${theme.text} ${theme.border} border uppercase tracking-wide">${escapeHTML(recipe.category)}</span>
-                                    <h3 class="font-serif font-extrabold text-[17px] text-stone-900 leading-snug line-clamp-2">${escapeHTML(recipe.title)}</h3>
-                                </div>
+                return `<article onclick="openRecipeModal('${recipe.id}')" class="card-gradient-border rounded-[26px] p-4 sm:p-5 shadow-soft hover:shadow-elevated hover:-translate-y-0.5 transition-all duration-200 cursor-pointer active:scale-[0.99] flex flex-col justify-between gap-3 animate-fade-up ${idx < 3 ? 'stagger-'+(idx+1) : ''}">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-start gap-3 flex-1 min-w-0">
+                            <div class="w-10 h-10 rounded-xl ${theme.bg} ${theme.text} ${theme.border} border flex items-center justify-center shrink-0 shadow-soft">
+                                <i class="${theme.icon} text-lg"></i>
                             </div>
-                            <div class="w-8 h-8 rounded-lg bg-cream-50 border border-cream-200 flex items-center justify-center shrink-0 text-stone-500">${sourceIcon}</div>
-                        </div>
-                        <div class="flex items-center justify-between pt-2.5 border-t border-cream-100 text-xs text-stone-500 font-medium">
-                            <div class="flex items-center gap-3">
-                                <span class="flex items-center gap-1"><i class="ph-bold ph-clock text-stone-400"></i> ${escapeHTML(recipe.prepTime)}</span>
-                                <span class="flex items-center gap-1"><i class="ph-bold ph-fire text-stone-400"></i> ${escapeHTML(recipe.cookTime)}</span>
-                                <span class="flex items-center gap-1"><i class="ph-bold ph-list-bullets text-stone-400"></i> ${recipe.ingredients.length}</span>
+                            <div class="space-y-1 min-w-0 flex-1">
+                                <span class="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold ${theme.bg} ${theme.text} ${theme.border} border uppercase tracking-wide">${escapeHTML(recipe.category)}</span>
+                                <h3 class="font-serif font-extrabold text-[17px] text-stone-900 leading-snug line-clamp-2">${escapeHTML(recipe.title)}</h3>
                             </div>
-                            <span class="font-bold text-terracotta-600 flex items-center gap-0.5">Apri <i class="ph-bold ph-caret-right"></i></span>
                         </div>
-                    </article>`;
+                        <div class="w-8 h-8 rounded-lg bg-cream-50 border border-cream-200 flex items-center justify-center shrink-0 text-stone-500">${sourceIcon}</div>
+                    </div>
+                    <div class="flex items-center justify-between pt-2.5 border-t border-cream-100 text-xs text-stone-500 font-medium">
+                        <div class="flex items-center gap-3">
+                            <span class="flex items-center gap-1"><i class="ph-bold ph-clock text-stone-400"></i> ${escapeHTML(recipe.prepTime)}</span>
+                            <span class="flex items-center gap-1"><i class="ph-bold ph-fire text-stone-400"></i> ${escapeHTML(recipe.cookTime)}</span>
+                            <span class="flex items-center gap-1"><i class="ph-bold ph-list-bullets text-stone-400"></i> ${recipe.ingredients.length}</span>
+                        </div>
+                        <span class="font-bold text-terracotta-600 flex items-center gap-0.5">Apri <i class="ph-bold ph-caret-right"></i></span>
+                    </div>
+                </article>`;
             }).join("");
         }
 
@@ -1072,8 +772,7 @@ REGOLE RIGIDE PER I DATI:
         function openRecipeModal(id) {
             const recipe = recipesDB.find(r => r.id === id);
             if (!recipe) return;
-            currentOpenedRecipeId = id;
-            currentServingsMultiplier = 1;
+            currentOpenedRecipeId = id; currentServingsMultiplier = 1;
             renderRecipeDetailContent(recipe);
             document.getElementById("recipe-detail-modal").classList.remove("hidden");
             document.body.classList.add("overflow-hidden");
@@ -1201,14 +900,14 @@ REGOLE RIGIDE PER I DATI:
         async function toggleWakeLock() {
             const label = document.getElementById("wakelock-label");
             const btn = document.getElementById("wakelock-btn");
-            if (!("wakeLock" in navigator)) { showToast("Il tuo browser non supporta il blocco schermo automatico", "info"); return; }
+            if (!("wakeLock" in navigator)) { showToast("Browser non supporta il blocco schermo automatico", "info"); return; }
             try {
                 if (wakeLock !== null) { await releaseWakeLock(); showToast("Blocco schermo disattivato", "info"); }
                 else {
                     wakeLock = await navigator.wakeLock.request("screen");
                     if (label) label.textContent = "Attivo";
                     if (btn) btn.classList.add("bg-saffron-100", "text-amber-900", "border-saffron-400");
-                    showToast("Schermo mantenuto acceso per cucinare!", "success");
+                    showToast("Schermo mantenuto acceso!", "success");
                 }
             } catch (err) { showToast("Impossibile attivare la modalità schermo acceso", "info"); }
         }
@@ -1219,8 +918,7 @@ REGOLE RIGIDE PER I DATI:
 
         function addSingleIngredientToShopping(text) {
             shoppingList.unshift({ id: "shop-" + Date.now() + Math.random().toString(36).slice(2, 6), text: text, checked: false });
-            syncShoppingDB();
-            showToast(`Aggiunto: ${text}`, "success");
+            syncShoppingDB(); showToast(`Aggiunto: ${text}`, "success");
         }
 
         function addAllIngredientsToShopping(recipeId) {
@@ -1231,8 +929,7 @@ REGOLE RIGIDE PER I DATI:
                 const fullLabel = `${qtyText ? qtyText + ' ' : ''}${ing.unit !== 'q.b.' ? ing.unit + ' ' : ''}${ing.name}${ing.unit === 'q.b.' ? ' (q.b.)' : ''}`.trim();
                 shoppingList.unshift({ id: "shop-" + Date.now() + Math.random().toString(36).slice(2, 6), text: `${fullLabel} (${recipe.title})`, checked: false });
             });
-            syncShoppingDB();
-            showToast("Tutti gli ingredienti aggiunti alla Lista della Spesa!", "success");
+            syncShoppingDB(); showToast("Ingredienti aggiunti alla Lista Spesa!", "success");
         }
 
         function handleAddManualShoppingItem(e) {
@@ -1240,8 +937,7 @@ REGOLE RIGIDE PER I DATI:
             const input = document.getElementById("manual-shopping-input");
             const val = input.value.trim();
             if (!val) return;
-            addSingleIngredientToShopping(val);
-            input.value = "";
+            addSingleIngredientToShopping(val); input.value = "";
         }
 
         function toggleShoppingItem(id) {
@@ -1253,8 +949,7 @@ REGOLE RIGIDE PER I DATI:
 
         function clearCompletedShoppingItems() {
             shoppingList = shoppingList.filter(i => !i.checked);
-            syncShoppingDB();
-            showToast("Articoli acquistati rimossi", "info");
+            syncShoppingDB(); showToast("Articoli acquistati rimossi", "info");
         }
 
         function renderShoppingList() {
@@ -1294,10 +989,8 @@ REGOLE RIGIDE PER I DATI:
             const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: "application/json" });
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
-            a.href = url;
-            a.download = `CatturaRicette_Backup_${new Date().toISOString().slice(0, 10)}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
+            a.href = url; a.download = `CatturaRicette_Backup_${new Date().toISOString().slice(0, 10)}.json`;
+            a.click(); URL.revokeObjectURL(url);
             showToast("Backup JSON scaricato!", "success");
         }
 
@@ -1350,7 +1043,7 @@ REGOLE RIGIDE PER I DATI:
         async function pasteFromClipboard() {
             try {
                 const text = await navigator.clipboard.readText();
-                if (text) { document.getElementById("recipe-url").value = text.trim(); showToast("Link incollato dagli appunti!", "success"); }
+                if (text) { document.getElementById("recipe-url").value = text.trim(); showToast("Link incollato!", "success"); }
                 else showToast("Gli appunti sono vuoti", "info");
             } catch (err) {
                 document.getElementById("recipe-url").focus();
@@ -1387,7 +1080,6 @@ REGOLE RIGIDE PER I DATI:
         });
 
         window.onload = function () {
-            generateAppIcons();
             loadAllData();
             setTimeout(() => switchTab('extract'), 50);
         };
